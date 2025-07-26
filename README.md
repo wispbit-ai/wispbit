@@ -21,7 +21,7 @@
 ### Why wispbit?
 wispbit is a model-agnostic AI code review tool that runs anywhere and uses your rules.
 
-wispbit works best if you struggle with tribal knowledge and need to enforce codebase rules with one central tool.
+wispbit works best if you struggle with tribal knowledge and need to maintain codebase standards.
 
 ### Installation
 1. `npx @wispbit/cli@latest configure`

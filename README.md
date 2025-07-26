@@ -29,8 +29,8 @@ wispbit works best if you struggle with tribal knowledge and need to enforce cod
 
 wispbit works best with high quality rules. Add more rules from the [wispbit rules page](https://wispbit.com/rules) or create your own.
 
-### Where can I use this?
-[See this doc (Github Actions, CI, MCP, Claude Code, Background agents).](./TOOLS.md)
+### Use cases
+[See this doc (Github Actions, CI, MCP, Claude Code, Background agents).](./USE_CASES.md)
 
 ### FAQ
 **Why not use a code editor (Cursor, Claude, Cline, etc) to review code?**

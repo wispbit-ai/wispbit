@@ -27,10 +27,10 @@ wispbit works best if you struggle with tribal knowledge and need to enforce cod
 1. `npx @wispbit/cli@latest configure`
 2. `npx @wispbit/cli@latest review`
 
-wispbit works best with high quality rules. Add rules from the [wispbit rules page](https://wispbit.com/rules) or create your own.
+wispbit works best with high quality rules. Add more rules from the [wispbit rules page](https://wispbit.com/rules) or create your own.
 
 ### Where can I use this?
-wispbit runs anywhere. [See this doc (Github Actions, CI, MCP, Claude Code, Background agents).](./TOOLS.md)
+[See this doc (Github Actions, CI, MCP, Claude Code, Background agents).](./TOOLS.md)
 
 ### FAQ
 **Why not use a code editor (Cursor, Claude, Cline, etc) to review code?**

@@ -6,5 +6,5 @@ Use wispbit in different scenarios:
 Use a prompt
 
 ```text
-run a code review using "npx @wispbit/cli@2.0.0 review" and address any violations
+run a code review using "npx @wispbit/cli@latest review" and address any violations
 ```

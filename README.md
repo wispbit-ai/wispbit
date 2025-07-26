@@ -35,14 +35,15 @@ wispbit works best with high quality rules. Add more rules from the [wispbit rul
 ### FAQ
 **Why not use a code editor (Cursor, Claude, Cline, etc) to review code?**
 - You could totally do that, however...
-- The tools and prompts for _writing_ and _reviewing_ code are different, so the accuracy improves significantly with a specialized tool and prompt
-- When everyone uses a different tool to write code, you need one central place that defines your code standards and enforces them
+- The tools and prompts for _writing_ and _reviewing_ code are different. We've tried fitting this into existing tools but we found that a specialized tool improves accuracy and reduces noise significantly.
+- When everyone uses a different tool to write code, you need one central place that defines your code standards and enforces them.
 
 **How is this different from Bugbot, CodeRabbit, Greptile?**
-- 100% open source and runs anywhere
-- It's specific instead of general - works as expected from day one vs having to fine tune the tool over time with feedback from many comments
-- You have full control of what gets reviewed and what doesn't
-- You own the data and the prompts
+- 100% open source and runs anywhere.
+- It's specific as opposed to general. Works as expected from day one vs having to fine tune the tool over time with feedback.
+- You have full control of what gets reviewed and what doesn't.
+- You own the data and the prompts.
+- Opinionated and simple. No summaries. No poems. Just violations with actionable feedback. The goal is to get out of your way.
 
 ### Community
 [Join the discord community!](https://wispbit.com/discord)

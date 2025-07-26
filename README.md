@@ -45,4 +45,4 @@ wispbit works best with high quality rules. Add more rules from the [wispbit rul
 - You own the data and the prompts
 
 ### Community
-[Join the discord community](https://wispbit.com/discord)
+[Join the discord community!](https://wispbit.com/discord)

@@ -6,7 +6,7 @@
     </a>
 </p>
 
-<p align="center">AI code review agent that runs anywhere</p>
+<p align="center">AI code review agent for teams (of people and robots)</p>
 
 <p align="center">
     <a href="https://wispbit.com">

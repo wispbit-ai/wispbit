@@ -29,46 +29,43 @@ Usage:
   $ wispbit mcp [mcp-options]
 
 Commands:
-  review                        Run a code review.
-  mcp                           Run the MCP server. This will error out if you didn't configure the provider first.
-  configure                     Configure the code reviewer.
-  rule install default          Install default rules for the code review.
-  rule install [rule-name]      Install a custom rule found in https://wispbit.com/rules.
-  cache purge                   Clear all cached review data.
+  review                             Run a code review.
+  mcp                                Run the MCP server. This will error out if you didn't configure the provider first.
+  configure                          Configure the code reviewer.
+  rule install default               Install default rules for the code review.
+  rule install [rule-name]           Install a custom rule found in https://wispbit.com/rules.
+  cache purge                        Clear all cached review data.
 
 Options for review:
-  -c, --context <directory>     Set working directory context (default: current directory)
-  -r, --rules <directory>       Set custom rules directory (default: checks for .wispbit/rules in each directory and root)
-  -m, --model <model>           Set custom model for the code review (default: ${CLAUDE_4_SONNET})
-  -p, --provider <provider>     Change the provider for the code review (default: openrouter; options: openrouter, anthropic)
-  --provider-url <url>          Set a custom OpenAI-compatible model provider URL for the code review. Overrides provider flag.
-  --openrouter-api-key <key>    Set a custom API key for the OpenRouter provider (env: OPENROUTER_API_KEY)
-  --anthropic-api-key <key>     Set a custom API key for the Anthropic provider (env: ANTHROPIC_API_KEY)
-
-  --base                        Set a base branch or commit to compare against (default: repository's default branch, such as origin/main or origin/master)
-
-  --ci                          Runs in CI mode - will attempt to call the provider's API to make comments on the pull request when violations are found.
-  --ci-provider <provider>      Set the provider for the CI mode (default: none; options: github, none)
-                                Will auto-detect if it's in github actions.
-  --cache-dir <directory>       Set custom cache directory for storing cached review data (default: ~/.wispbit). Useful if you want to set up custom caching between runs in CI.
-
-  --debug                       Enable debug logging for code review (prints more info)
+  -c, --context <directory>          Set working directory context (default: current directory)
+  -r, --rules <directory>            Set custom rules directory (default: checks for .wispbit/rules in each directory and root)
+  -m, --model <model>                Set custom model for the code review (default: ${CLAUDE_4_SONNET})
+  -p, --provider <provider>          Change the provider for the code review (default: openrouter; options: openrouter, anthropic)
+  --provider-url <url>               Set a custom OpenAI-compatible model provider URL for the code review. Overrides provider flag.
+  --openrouter-api-key <key>         Set a custom API key for the OpenRouter provider (env: OPENROUTER_API_KEY)
+  --anthropic-api-key <key>          Set a custom API key for the Anthropic provider (env: ANTHROPIC_API_KEY)
+  --base                             Set a base branch or commit to compare against (default: repository's default branch, such as origin/main or origin/master)
+  --ci                               Runs in CI mode - will attempt to call the provider's API to make comments on the pull request when violations are found.
+  --ci-provider <provider>           Set the provider for the CI mode (default: none; options: github, none)
+                                     Will auto-detect if it's in github actions.
+  --cache-dir <directory>            Set custom cache directory for storing cached review data (default: ~/.wispbit). Useful if you want to set up custom caching between runs in CI.
+  --debug                            Enable debug logging for code review (prints more info)
 
 Options for mcp:
-  --transport <stdio|http|sse>  Set the transport for the MCP server (default: stdio)
-  --port <port>                 Set the port for the HTTP/SSE transport (default: 3000)
-  --debug                       Enable debug logging for the MCP server
+  --transport <stdio|http|sse>       Set the transport for the MCP server (default: stdio)
+  --port <port>                      Set the port for the HTTP/SSE transport (default: 3000)
+  --debug                            Enable debug logging for the MCP server
 
-Options for github CI provider (by default, will auto-detect if it's in github actions):
-  --github-token <token>            Set a custom GitHub token for the CI mode (env: GITHUB_TOKEN)
-  --github-owner <owner>            Set a custom GitHub owner for the CI mode (env: GITHUB_REPOSITORY_OWNER)
-  --github-repo <repo>              Set a custom GitHub repository for the CI mode (env: GITHUB_REPOSITORY_NAME)
-  --github-pull-request-number <number>  Set a custom GitHub pull request number for the CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
-  --github-commit-sha <sha>         Set a custom GitHub commit SHA for the CI mode (env: GITHUB_SHA)
+Options for GitHub CI provider (auto-detected in GitHub Actions):
+  --github-token <token>                  Set a custom GitHub token for the CI mode (env: GITHUB_TOKEN)
+  --github-owner <owner>                  Set a custom GitHub owner for the CI mode (env: GITHUB_REPOSITORY_OWNER)
+  --github-repo <repo>                    Set a custom GitHub repository for the CI mode (env: GITHUB_REPOSITORY_NAME)
+  --github-pull-request-number <number>   Set a custom GitHub pull request number for the CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
+  --github-commit-sha <sha>               Set a custom GitHub commit SHA for the CI mode (env: GITHUB_SHA)
 
 Global options:
-  -v, --version                 Show version number
-  -h, --help                    Show help
+  -v, --version                      Show version number
+  -h, --help                         Show help
 `,
   {
     importMeta: import.meta,

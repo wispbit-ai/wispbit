@@ -68,7 +68,7 @@ export async function runCodeReviewCi(
         pullNumber: Number(ciOptions.githubPullRequestNumber),
         body: `Found ${file.violations.length} violations using [wispbit](https://github.com/wispbit-ai/wispbit)`,
         comments: file.violations.map((violation) => ({
-          body: `[[${violation.rule.name}](https://github.com/${owner}/${repo}/blob/${ciOptions.githubSha ?? ""}/${violation.rule.directory ?? ""}wispbit/rules/${violation.rule.name}.md)] ${violation.description}`,
+          body: `[${violation.rule.name}](https://github.com/${owner}/${repo}/blob/${ciOptions.githubSha ?? ""}/${violation.rule.directory ?? ""}.wispbit/rules/${violation.rule.name}.md) ${violation.description}`,
           path: file.fileName,
           line: violation.line.end,
           side: violation.line.side === "right" ? "RIGHT" : "LEFT",

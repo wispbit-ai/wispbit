@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write # for wispbit to have permission to comment on the PR
+      contents: read
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
     steps:
@@ -38,8 +39,8 @@ jobs:
           pnpm dlx @wispbit/cli review \
             --ci \
             --ci-provider github \
-            --github-token=${{ env.GITHUB_TOKEN }} \
-            --github-repository=${{ env.GITHUB_REPOSITORY }} \
+            --github-token=${{ github.token }} \
+            --github-repository=${{ github.repository }} \
             --github-pull-request-number=${{ github.event.pull_request.number }} \
             --provider openrouter \
             --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \

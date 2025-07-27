@@ -13,22 +13,19 @@ export async function runCodeReviewCi(
   ciOptions: CiOptions
 ): Promise<void> {
   const diffCommit = ""
-
-  await runCodeReview({
+  const results = await runCodeReview({
     options,
     hooks: {
       onStart: ({ files, currentBranch, diffBranch, diffCommit }) => {
         console.log(
           chalk.green(
-            `[wispbit] found ${files.length} files to review, comparing ${currentBranch} with ${diffBranch} (${diffCommit})`
+            `[wispbit] found ${files.length} files to review, comparing ${currentBranch} with ${diffBranch} ${diffCommit && diffBranch !== diffCommit ? `(${diffCommit})` : ""}`
           )
         )
         diffCommit = diffCommit ?? diffCommit
       },
-      onAbort: () => {
-        process.exit(0)
-      },
-      onUpdateFile: async (file: FileWithStatus) => {
+      onAbort: () => {},
+      onUpdateFile: (file: FileWithStatus) => {
         switch (file.status) {
           case "skipped":
           case "completed":
@@ -56,41 +53,35 @@ export async function runCodeReviewCi(
             }
             break
         }
-
-        if (
-          ciOptions.ciProvider === "github" &&
-          file.status === "completed" &&
-          file.violations &&
-          file.violations.length > 0
-        ) {
-          const octokit = getOctokit(options.apiKey)
-
-          for (const violation of file.violations) {
-            const split = ciOptions.githubRepository?.split("/")
-            await createGithubPullRequestComment(octokit, {
-              owner: split?.[0] ?? "",
-              repo: split?.[1] ?? "",
-              pullNumber: Number(ciOptions.githubPullRequestNumber),
-              body: violation.description,
-              path: file.fileName,
-              commitId: diffCommit,
-              line: violation.line.end,
-              side: violation.line.side === "right" ? "RIGHT" : "LEFT",
-              startLine:
-                violation.line.start !== violation.line.end ? violation.line.start : undefined,
-              startSide:
-                violation.line.start !== violation.line.end
-                  ? violation.line.side === "right"
-                    ? "RIGHT"
-                    : "LEFT"
-                  : undefined,
-            })
-          }
-        }
       },
-      onComplete: () => {
-        process.exit(0)
-      },
+      onComplete: () => {},
     },
   })
+
+  for (const file of results ?? []) {
+    if (ciOptions.ciProvider === "github" && file.violations && file.violations.length > 0) {
+      const octokit = getOctokit(options.apiKey)
+
+      for (const violation of file.violations) {
+        const split = ciOptions.githubRepository?.split("/")
+        await createGithubPullRequestComment(octokit, {
+          owner: split?.[0] ?? "",
+          repo: split?.[1] ?? "",
+          pullNumber: Number(ciOptions.githubPullRequestNumber),
+          body: violation.description,
+          path: file.fileName,
+          commitId: diffCommit,
+          line: violation.line.end,
+          side: violation.line.side === "right" ? "RIGHT" : "LEFT",
+          startLine: violation.line.start !== violation.line.end ? violation.line.start : undefined,
+          startSide:
+            violation.line.start !== violation.line.end
+              ? violation.line.side === "right"
+                ? "RIGHT"
+                : "LEFT"
+              : undefined,
+        })
+      }
+    }
+  }
 }

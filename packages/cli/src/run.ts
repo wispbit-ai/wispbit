@@ -145,13 +145,6 @@ Global options:
   }
 )
 
-const hasConfiguredModelAndEndpoint = (): boolean => {
-  const provider = getProvider()
-  const endpoint = cli.flags.providerUrl ?? provider?.endpoint
-  const model = cli.flags.model ?? provider?.defaultModel
-  return !!endpoint && !!model
-}
-
 const constructCodeReviewOptions = (): CodeReviewOptions => {
   let provider = cli.flags.provider ? getProviderById(cli.flags.provider) : getProvider()
 
@@ -259,15 +252,6 @@ async function main() {
       }
 
       case "mcp": {
-        if (!hasConfiguredModelAndEndpoint()) {
-          console.log(
-            chalk.red(
-              "Provider configuration is required to run MCP server. Run `wispbit configure` to configure your provider, or pass in a model and endpoint with the --model and --provider-url flags."
-            )
-          )
-          process.exit(1)
-        }
-
         const port = cli.flags.port ? parseInt(cli.flags.port) : 3000
         const transport = cli.flags.transport as "stdio" | "http" | "sse"
 
@@ -277,15 +261,6 @@ async function main() {
       }
 
       case "review": {
-        if (!hasConfiguredModelAndEndpoint()) {
-          console.log(
-            chalk.red(
-              "Provider configuration is required to run code review. Run `wispbit configure` to configure your provider, or pass in a model and endpoint with the --model and --provider-url flags."
-            )
-          )
-          process.exit(1)
-        }
-
         if (cli.flags.ci) {
           runCodeReviewCi(constructCodeReviewOptions(), constructCiOptions())
         } else {

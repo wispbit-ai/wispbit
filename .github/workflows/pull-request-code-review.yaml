@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write # for wispbit to have permission to comment on the PR
+      contents: read
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
     steps:

@@ -30,4 +30,14 @@ jobs:
           key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit
 
       - name: Run wispbit code review
-        run: pnpm dlx @wispbit/cli review --ci --ci-provider github --provider openrouter --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} --model anthropic/claude-sonnet-4
+        run: |
+          pnpm dlx @wispbit/cli review \
+            --ci \
+            --ci-provider github \
+            --github-token=${{ env.GITHUB_TOKEN }} \
+            --github-repository=${{ env.GITHUB_REPOSITORY }} \
+            --github-pull-request-number=${{ github.event.pull_request.number }} \
+            --github-commit-sha=${{ env.GITHUB_SHA }} \
+            --provider openrouter \
+            --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \
+            --model anthropic/claude-sonnet-4

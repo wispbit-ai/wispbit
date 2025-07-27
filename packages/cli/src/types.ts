@@ -27,7 +27,6 @@ export interface CiOptions {
   githubToken?: string
   githubRepository?: string
   githubPullRequestNumber?: string
-  githubCommitSha?: string
 }
 
 export interface CodeReviewHooks {

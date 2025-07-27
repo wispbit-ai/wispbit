@@ -12,6 +12,8 @@ export async function runCodeReviewCi(
   options: CodeReviewOptions,
   ciOptions: CiOptions
 ): Promise<void> {
+  const diffCommit = ""
+
   await runCodeReview({
     options,
     hooks: {
@@ -21,6 +23,7 @@ export async function runCodeReviewCi(
             `[wispbit] found ${files.length} files to review, comparing ${currentBranch} with ${diffBranch} (${diffCommit})`
           )
         )
+        diffCommit = diffCommit ?? diffCommit
       },
       onAbort: () => {
         process.exit(0)
@@ -70,7 +73,7 @@ export async function runCodeReviewCi(
               pullNumber: Number(ciOptions.githubPullRequestNumber),
               body: violation.description,
               path: file.fileName,
-              commitId: ciOptions.githubCommitSha!,
+              commitId: diffCommit,
               line: violation.line.end,
               side: violation.line.side === "right" ? "RIGHT" : "LEFT",
               startLine:

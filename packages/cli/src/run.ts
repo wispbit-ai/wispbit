@@ -46,8 +46,8 @@ Options for review:
   --anthropic-api-key <key>          Set a custom API key for the Anthropic provider (env: ANTHROPIC_API_KEY)
   --base                             Set a base branch or commit to compare against (default: repository's default branch, such as origin/main or origin/master)
   --ci                               Runs in CI mode - will attempt to call the provider's API to make comments on the pull request when violations are found.
-  --ci-provider <provider>           Set the provider for the CI mode (default: none; options: github, none)
-                                     Will auto-detect if it's in github actions.
+  --ci-provider <provider>            Set the provider for the CI mode (default: none; options: github, none)
+                                       Will auto-detect if it's in github actions.
   --cache-dir <directory>              Set custom cache directory for storing cached review data (default: ~/.wispbit). Useful if you want to set up custom caching between runs in CI.
   --debug                            Enable debug logging for code review (prints more info)
 
@@ -60,7 +60,6 @@ Options for github CI provider (by default, will auto-detect if it's in github a
   --github-token <token>              Set a custom GitHub token for the CI mode (env: GITHUB_TOKEN)
   --github-repository <repo>         Set a custom GitHub repository for the CI mode. Should be in format <owner>/<repo> (env: GITHUB_REPOSITORY)
   --github-pull-request-number <number>  Set a custom GitHub pull request number for the CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
-  --github-commit-sha <sha>         Set a custom GitHub commit SHA for the CI mode (env: GITHUB_SHA)
 
 Global options:
   -v, --version                      Show version number
@@ -131,9 +130,6 @@ Global options:
       githubRepository: {
         type: "string",
       },
-      githubCommitSha: {
-        type: "string",
-      },
 
       // Global options
       version: {
@@ -184,7 +180,11 @@ const constructCodeReviewOptions = (): CodeReviewOptions => {
     model: model!,
     debug: cli.flags.debug || false,
     apiKey: cli.flags.openrouterApiKey ?? cli.flags.anthropicApiKey ?? apiKey ?? "",
-    base: cli.flags.base ?? githubContext?.payload?.pull_request?.base.sha ?? undefined,
+    base:
+      cli.flags.base ??
+      (cli.flags.ciProvider === "github"
+        ? process.env.GITHUB_SHA ?? githubContext?.payload?.pull_request?.base.sha
+        : undefined),
   }
 }
 
@@ -200,10 +200,6 @@ const constructCiOptions = (): CiOptions => {
         process.env.GITHUB_PULL_REQUEST_NUMBER ??
         githubContext.payload.pull_request?.number?.toString() ??
         undefined,
-      githubCommitSha:
-        cli.flags.githubCommitSha ??
-        process.env.GITHUB_SHA ??
-        githubContext.payload.pull_request?.base.sha,
     }
   }
 

@@ -12,17 +12,15 @@ export async function runCodeReviewCi(
   options: CodeReviewOptions,
   ciOptions: CiOptions
 ): Promise<void> {
-  let currentCommitId = ""
   const results = await runCodeReview({
     options,
     hooks: {
-      onStart: ({ files, currentBranch, diffBranch, diffCommit, currentCommit }) => {
+      onStart: ({ files, currentBranch, diffBranch, diffCommit }) => {
         console.log(
           chalk.green(
             `[wispbit] found ${files.length} files to review, comparing ${currentBranch} with ${diffBranch} ${diffCommit && diffBranch !== diffCommit ? `(${diffCommit})` : ""}`
           )
         )
-        currentCommitId = currentCommit
       },
       onAbort: () => {},
       onUpdateFile: (file: FileWithStatus) => {
@@ -70,7 +68,7 @@ export async function runCodeReviewCi(
           pullNumber: Number(ciOptions.githubPullRequestNumber),
           body: violation.description,
           path: file.fileName,
-          commitId: currentCommitId,
+          commitId: ciOptions.githubSha ?? "",
           line: violation.line.end,
           side: violation.line.side === "right" ? "RIGHT" : "LEFT",
           startLine: violation.line.start !== violation.line.end ? violation.line.start : undefined,

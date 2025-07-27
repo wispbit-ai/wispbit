@@ -42,6 +42,7 @@ jobs:
             --github-token=${{ github.token }} \
             --github-repository=${{ github.repository }} \
             --github-pull-request-number=${{ github.event.pull_request.number }} \
+            --github-sha=${{ github.sha }} \
             --provider openrouter \
             --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \
             --model anthropic/claude-sonnet-4 \

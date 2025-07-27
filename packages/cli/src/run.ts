@@ -60,7 +60,8 @@ Options for github CI provider (by default, will auto-detect if it's in github a
   --github-token <token>              Set a custom GitHub token for the CI mode (env: GITHUB_TOKEN)
   --github-repository <repo>         Set a custom GitHub repository for the CI mode. Should be in format <owner>/<repo> (env: GITHUB_REPOSITORY)
   --github-pull-request-number <number>  Set a custom GitHub pull request number for the CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
-
+  --github-sha <sha>                  The SHA to use when making comments on the PR (env: GITHUB_SHA)
+  
 Global options:
   -v, --version                      Show version number
   -h, --help                         Show help
@@ -130,6 +131,9 @@ Global options:
       githubRepository: {
         type: "string",
       },
+      githubSha: {
+        type: "string",
+      },
 
       // Global options
       version: {
@@ -193,6 +197,10 @@ const constructCiOptions = (): CiOptions => {
         process.env.GITHUB_PULL_REQUEST_NUMBER ??
         githubContext.payload.pull_request?.number?.toString() ??
         undefined,
+      githubSha:
+        cli.flags.githubSha ??
+        process.env.GITHUB_SHA ??
+        githubContext.payload.pull_request?.base.sha,
     }
   }
 

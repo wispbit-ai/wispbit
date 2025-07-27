@@ -39,6 +39,7 @@ export interface CodeReviewHooks {
     files: FileChange[]
     rules: CodebaseRule[]
     currentBranch: string
+    currentCommit: string
     diffBranch: string
     diffCommit: string
     abortController: AbortController

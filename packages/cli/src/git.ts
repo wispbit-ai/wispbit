@@ -159,6 +159,7 @@ export async function getChangedFiles(
 ): Promise<{
   files: FileChange[]
   currentBranch: string
+  currentCommit: string
   diffBranch: string
   diffCommit: string
 }> {
@@ -167,6 +168,12 @@ export async function getChangedFiles(
     cwd: repoRoot,
   })
   const currentBranch = currentBranchOutput.trim()
+
+  // Get current commit hash
+  const { stdout: currentCommitOutput } = await execPromise("git rev-parse HEAD", {
+    cwd: repoRoot,
+  })
+  const currentCommit = currentCommitOutput.trim()
 
   // Try to get the default branch from origin
   const defaultBranch = await getDefaultBranch(repoRoot)
@@ -294,6 +301,7 @@ export async function getChangedFiles(
   return {
     files: fileChanges,
     currentBranch,
+    currentCommit,
     diffCommit: mergeBase,
     diffBranch: compareTo,
   }

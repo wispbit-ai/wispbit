@@ -31,7 +31,7 @@ export async function runCodeReview({
 
   try {
     // Get the list of changed files
-    const { files, currentBranch, diffBranch, diffCommit } = await getChangedFiles(
+    const { files, currentBranch, currentCommit, diffBranch, diffCommit } = await getChangedFiles(
       repoRoot,
       options.base
     )
@@ -45,6 +45,7 @@ export async function runCodeReview({
       files,
       rules,
       currentBranch,
+      currentCommit,
       diffBranch,
       diffCommit,
       abortController,

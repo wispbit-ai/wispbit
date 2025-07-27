@@ -1,0 +1,61 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+repos/*
+lib/.codebaserules
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.user/*
+.user
+.mypy_cache/*
+.mypy_cache
+.pytest_cache/*
+.pytest_cache
+logs/*
+logs
+# Virtual Environment
+.venv/
+venv/
+ENV/
+tsconfig.tsbuildinfo
+
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.codebaserules
+src/history/
+repos
+node_modules
+
+rules2
+*.db
+dist
+
+__test_runs__

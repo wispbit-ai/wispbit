@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./",
+    "baseUrl": "./",
+    "paths": {
+      "@wispbit/sdk/*": ["src/*"],
+      "@wispbit/sdk": ["src"],
+    },
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "scripts/**/*",
+    "*.ts",
+    "vitest.config.mts",
+    "trigger.config.ts",
+    "*.cjs",
+    "**/.eslintrc.cjs",
+  ],
+}

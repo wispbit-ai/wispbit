@@ -1,0 +1,5 @@
+dist
+**/dist
+pnpm-lock.yaml
+README.md
+*.handlebars

@@ -1,0 +1,5 @@
+**
+vitest.config.mts
+!dist/**
+!package.json
+__tests__/**

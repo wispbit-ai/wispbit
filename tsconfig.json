@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"],
+    "composite": true,
+    "target": "ESNext",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": true,
+    "incremental": true,
+    "allowJs": true,
+  },
+  "files": [],
+  "references": [
+    { "path": "packages/cli" },
+    { "path": "packages/sdk" },
+  ],
+  "exclude": [
+    "packages/**/build/*",
+    "packages/**/dist/*",
+    "**/node_modules",
+    "**/.*/",
+    "**/.eslintrc.cjs",
+  ],
+}

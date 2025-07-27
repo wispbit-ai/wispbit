@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "wispbit": {
+      "command": "npx",
+      "args": ["-y", "@wispbit/cli@latest", "mcp"]
+    }
+  }
+}

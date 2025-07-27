@@ -1,0 +1,8 @@
+dist
+build
+**/dist
+**/build
+**/public
+**/generated
+**/*.d.ts
+node_modules

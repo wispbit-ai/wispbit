@@ -1,0 +1,5 @@
+export const CLAUDE_3_7_SONNET = "anthropic/claude-3.7-sonnet"
+export const GEMINI_FLASH_2_5 = "google/gemini-2.5-flash"
+export const CLAUDE_4_SONNET = "anthropic/claude-sonnet-4"
+export const CLAUDE_4_OPUS = "anthropic/claude-opus-4"
+export const KIMI_K_2 = "moonshotai/kimi-k2"

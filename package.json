@@ -1,0 +1,29 @@
+{
+  "name": "wispbit",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "eslint . --max-warnings 0",
+    "compile": "tsc -b",
+    "lint:prettier": "prettier --check \"packages/**/src/**/*.{cjs,ts,tsx,css,js,jsx,html,json}\""
+  },
+  "dependencies": {
+    "tsx": "4.19.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.30",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-import-resolver-typescript": "^3.10.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-unused-imports": "3.2.0",
+    "prettier": "3.2.4",
+    "typescript": "^5.0.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.1.1"
+  }
+}

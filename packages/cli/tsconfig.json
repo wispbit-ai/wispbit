@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./",
+    "baseUrl": "./",
+    "jsx": "react",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@wispbit/sdk/*": ["../sdk/src/*"],
+      "@wispbit/sdk": ["../sdk/src"],
+      "@wispbit/cli/*": ["src/*"],
+      "@wispbit/cli": ["src"],
+    },
+  },
+  "include": [
+    "src/**/*",
+    "build.ts",
+    "tests/**/*",
+    "scripts/**/*",
+    "*.ts",
+    "vitest.config.mts",
+    "*.cjs",
+    "**/.eslintrc.cjs",
+    "**/*.tsx",
+  ],
+  "references": [{ "path": "../sdk" }],
+}

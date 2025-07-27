@@ -169,15 +169,28 @@ export async function getChangedFiles(
   })
   const currentBranch = currentBranchOutput.trim()
 
-  // Get current commit hash
-  const { stdout: currentCommitOutput } = await execPromise("git rev-parse HEAD", {
-    cwd: repoRoot,
-  })
-  const currentCommit = currentCommitOutput.trim()
-
   // Try to get the default branch from origin
   const defaultBranch = await getDefaultBranch(repoRoot)
   const compareTo = base ?? (defaultBranch ? `origin/${defaultBranch}` : "HEAD^")
+
+  // Get current commit hash from the remote branch instead of local HEAD
+  let currentCommit: string
+  try {
+    // First try to get the commit from the remote tracking branch
+    const { stdout: remoteCommitOutput } = await execPromise(
+      `git rev-parse origin/${currentBranch}`,
+      {
+        cwd: repoRoot,
+      }
+    )
+    currentCommit = remoteCommitOutput.trim()
+  } catch (error) {
+    // Fallback to local HEAD if remote branch doesn't exist
+    const { stdout: currentCommitOutput } = await execPromise("git rev-parse HEAD", {
+      cwd: repoRoot,
+    })
+    currentCommit = currentCommitOutput.trim()
+  }
 
   // Find the merge-base (common ancestor) between current branch and comparison branch
   let mergeBase

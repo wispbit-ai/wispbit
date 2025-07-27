@@ -39,7 +39,7 @@ jobs:
           pnpm dlx @wispbit/cli review \
             --ci \
             --ci-provider github \
-            --github-token=${{ env.GITHUB_TOKEN }} \
+            --github-token=${{ github.token }} \
             --github-repository=${{ github.repository }} \
             --github-pull-request-number=${{ github.event.pull_request.number }} \
             --provider openrouter \

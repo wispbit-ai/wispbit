@@ -1,50 +1,51 @@
 import { Octokit } from "@octokit/rest"
 
-export async function createGithubPullRequestComment(
+export interface PullRequestComment {
+  body: string
+  path: string
+  line: number
+  side: "LEFT" | "RIGHT"
+  startLine?: number
+  startSide?: "LEFT" | "RIGHT"
+}
+
+export async function createGithubPullRequestReview(
   octokit: Octokit,
   {
     owner,
     repo,
     pullNumber,
-    body,
-    path,
     commitId,
-    line,
-    side,
-    startLine,
-    startSide,
+    comments,
+    body,
   }: {
     owner: string
     repo: string
     pullNumber: number
-    body: string
-    path: string
+    comments: PullRequestComment[]
     commitId: string
-    line: number
-    side: "LEFT" | "RIGHT"
-    startLine?: number
-    startSide?: "LEFT" | "RIGHT"
+    body?: string
   }
 ) {
-  const { data: comment } = await octokit.request(
-    "POST /repos/{owner}/{repo}/pulls/{pull_number}/comments",
-    {
-      owner,
-      repo,
-      pull_number: pullNumber,
-      body,
-      path,
-      commit_id: commitId,
-      line,
-      side,
-      ...(startLine && startSide
+  // First, create a pending review with all comments
+  await octokit.request("POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews", {
+    owner,
+    repo,
+    pull_number: pullNumber,
+    body,
+    event: "COMMENT",
+    commit_id: commitId,
+    comments: comments.map((comment) => ({
+      body: comment.body,
+      path: comment.path,
+      line: comment.line,
+      side: comment.side,
+      ...(comment.startLine && comment.startSide
         ? {
-            start_line: startLine,
-            start_side: startSide,
+            start_line: comment.startLine,
+            start_side: comment.startSide,
           }
         : {}),
-    }
-  )
-
-  return comment
+    })),
+  })
 }

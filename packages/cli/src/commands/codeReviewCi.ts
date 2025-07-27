@@ -66,7 +66,7 @@ export async function runCodeReviewCi(
         repo,
         commitId: ciOptions.githubSha ?? "",
         pullNumber: Number(ciOptions.githubPullRequestNumber),
-        body: `Found ${file.violations.length} violations using [wispbit](https://github.com/wispbit-ai/wispbit)`,
+        body: `Found ${file.violations.length} violation${file.violations.length === 1 ? "" : "s"} using [wispbit](https://github.com/wispbit-ai/wispbit)`,
         comments: file.violations.map((violation) => ({
           body: `[${violation.rule.name}](https://github.com/${owner}/${repo}/blob/${ciOptions.githubSha ?? ""}/${violation.rule.directory ?? ""}.wispbit/rules/${violation.rule.name}.md) ${violation.description}`,
           path: file.fileName,

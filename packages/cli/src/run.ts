@@ -61,8 +61,7 @@ Options for mcp:
 
 Options for github CI provider (by default, will auto-detect if it's in github actions):
   --github-token <token>            Set a custom GitHub token for the CI mode (env: GITHUB_TOKEN)
-  --github-owner <owner>            Set a custom GitHub owner for the CI mode (env: GITHUB_REPOSITORY_OWNER)
-  --github-repo <repo>              Set a custom GitHub repository for the CI mode (env: GITHUB_REPOSITORY_NAME)
+  --github-repository <repo>         Set a custom GitHub repository for the CI mode. Should be in format <owner>/<repo> (env: GITHUB_REPOSITORY)
   --github-pull-request-number <number>  Set a custom GitHub pull request number for the CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
   --github-commit-sha <sha>         Set a custom GitHub commit SHA for the CI mode (env: GITHUB_SHA)
 
@@ -129,13 +128,10 @@ Global options:
       githubToken: {
         type: "string",
       },
-      githubOwner: {
-        type: "string",
-      },
-      githubRepo: {
-        type: "string",
-      },
       githubPullRequestNumber: {
+        type: "string",
+      },
+      githubRepository: {
         type: "string",
       },
       githubCommitSha: {
@@ -164,7 +160,7 @@ const hasConfiguredModelAndEndpoint = (): boolean => {
 }
 
 const constructCodeReviewOptions = (): CodeReviewOptions => {
-  let provider = getProvider()
+  let provider = cli.flags.provider ? getProviderById(cli.flags.provider) : getProvider()
 
   if (!provider) {
     if (process.env.ANTHROPIC_API_KEY) {
@@ -180,7 +176,9 @@ const constructCodeReviewOptions = (): CodeReviewOptions => {
   const model = cli.flags.model ?? provider?.defaultModel
 
   if (!endpoint && !model) {
-    throw new Error("Provider configuration is required to run code review.")
+    throw new Error(
+      "Provider configuration is required to run code review. Run `wispbit configure` to configure your provider, or pass in a model and endpoint with the --model and --provider-url flags."
+    )
   }
 
   return {
@@ -198,10 +196,8 @@ const constructCiOptions = (): CiOptions => {
     return {
       ciProvider: "github",
       githubToken: cli.flags.githubToken ?? process.env.GITHUB_TOKEN ?? "",
-      githubOwner:
-        cli.flags.githubOwner ?? process.env.GITHUB_REPOSITORY_OWNER ?? githubContext.repo.owner,
-      githubRepo:
-        cli.flags.githubRepo ?? process.env.GITHUB_REPOSITORY_NAME ?? githubContext.repo.repo,
+      githubRepository:
+        cli.flags.githubRepository ?? process.env.GITHUB_REPOSITORY ?? githubContext.repo.repo,
       githubPullRequestNumber:
         cli.flags.githubPullRequestNumber ??
         process.env.GITHUB_PULL_REQUEST_NUMBER ??

@@ -63,9 +63,10 @@ export async function runCodeReviewCi(
           const octokit = getOctokit(options.apiKey)
 
           for (const violation of file.violations) {
+            const split = ciOptions.githubRepository?.split("/")
             await createGithubPullRequestComment(octokit, {
-              owner: ciOptions.githubOwner!,
-              repo: ciOptions.githubRepo!,
+              owner: split?.[0] ?? "",
+              repo: split?.[1] ?? "",
               pullNumber: Number(ciOptions.githubPullRequestNumber),
               body: violation.description,
               path: file.fileName,

@@ -1,7 +1,7 @@
-import { getOctokit } from "@actions/github"
+import { Octokit } from "@octokit/rest"
 
 export async function createGithubPullRequestComment(
-  octokit: ReturnType<typeof getOctokit>,
+  octokit: Octokit,
   {
     owner,
     repo,

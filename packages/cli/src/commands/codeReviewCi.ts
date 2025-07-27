@@ -1,4 +1,4 @@
-import { getOctokit } from "@actions/github"
+import { Octokit } from "@octokit/rest"
 import chalk from "chalk"
 
 import { runCodeReview } from "@wispbit/cli/codeReview"
@@ -12,15 +12,17 @@ export async function runCodeReviewCi(
   options: CodeReviewOptions,
   ciOptions: CiOptions
 ): Promise<void> {
+  let currentCommitId = ""
   const results = await runCodeReview({
     options,
     hooks: {
-      onStart: ({ files, currentBranch, diffBranch, diffCommit }) => {
+      onStart: ({ files, currentBranch, diffBranch, diffCommit, currentCommit }) => {
         console.log(
           chalk.green(
             `[wispbit] found ${files.length} files to review, comparing ${currentBranch} with ${diffBranch} ${diffCommit && diffBranch !== diffCommit ? `(${diffCommit})` : ""}`
           )
         )
+        currentCommitId = currentCommit
       },
       onAbort: () => {},
       onUpdateFile: (file: FileWithStatus) => {
@@ -58,7 +60,7 @@ export async function runCodeReviewCi(
 
   for (const file of results ?? []) {
     if (ciOptions.ciProvider === "github" && file.violations && file.violations.length > 0) {
-      const octokit = getOctokit(options.apiKey)
+      const octokit = new Octokit({ auth: ciOptions.githubToken })
 
       for (const violation of file.violations) {
         const split = ciOptions.githubRepository?.split("/")
@@ -68,7 +70,7 @@ export async function runCodeReviewCi(
           pullNumber: Number(ciOptions.githubPullRequestNumber),
           body: violation.description,
           path: file.fileName,
-          commitId: ciOptions.githubCommitSha!,
+          commitId: currentCommitId,
           line: violation.line.end,
           side: violation.line.side === "right" ? "RIGHT" : "LEFT",
           startLine: violation.line.start !== violation.line.end ? violation.line.start : undefined,

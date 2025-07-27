@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/rest"
 import chalk from "chalk"
 
 import { runCodeReview } from "@wispbit/cli/codeReview"
-import { createGithubPullRequestComment } from "@wispbit/cli/github"
+import { createGithubPullRequestReview } from "@wispbit/cli/github"
 import { CiOptions, CodeReviewOptions, FileWithStatus } from "@wispbit/cli/types"
 
 /**
@@ -59,16 +59,17 @@ export async function runCodeReviewCi(
   for (const file of results ?? []) {
     if (ciOptions.ciProvider === "github" && file.violations && file.violations.length > 0) {
       const octokit = new Octokit({ auth: ciOptions.githubToken })
+      const split = ciOptions.githubRepository?.split("/")
 
-      for (const violation of file.violations) {
-        const split = ciOptions.githubRepository?.split("/")
-        await createGithubPullRequestComment(octokit, {
-          owner: split?.[0] ?? "",
-          repo: split?.[1] ?? "",
-          pullNumber: Number(ciOptions.githubPullRequestNumber),
+      await createGithubPullRequestReview(octokit, {
+        owner: split?.[0] ?? "",
+        repo: split?.[1] ?? "",
+        commitId: ciOptions.githubSha ?? "",
+        pullNumber: Number(ciOptions.githubPullRequestNumber),
+        body: `Found ${file.violations.length} violations using [wispbit](https://github.com/wispbit-ai/wispbit)`,
+        comments: file.violations.map((violation) => ({
           body: violation.description,
           path: file.fileName,
-          commitId: ciOptions.githubSha ?? "",
           line: violation.line.end,
           side: violation.line.side === "right" ? "RIGHT" : "LEFT",
           startLine: violation.line.start !== violation.line.end ? violation.line.start : undefined,
@@ -78,8 +79,8 @@ export async function runCodeReviewCi(
                 ? "RIGHT"
                 : "LEFT"
               : undefined,
-        })
-      }
+        })),
+      })
     }
   }
 }

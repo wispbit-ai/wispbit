@@ -200,7 +200,7 @@ const constructCiOptions = (): CiOptions => {
       githubSha:
         cli.flags.githubSha ??
         process.env.GITHUB_SHA ??
-        githubContext.payload.pull_request?.base.sha,
+        githubContext.payload.pull_request?.head.sha,
     }
   }
 

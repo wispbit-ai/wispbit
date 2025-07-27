@@ -59,16 +59,16 @@ export async function runCodeReviewCi(
   for (const file of results ?? []) {
     if (ciOptions.ciProvider === "github" && file.violations && file.violations.length > 0) {
       const octokit = new Octokit({ auth: ciOptions.githubToken })
-      const split = ciOptions.githubRepository?.split("/")
+      const [owner, repo] = ciOptions.githubRepository?.split("/") ?? []
 
       await createGithubPullRequestReview(octokit, {
-        owner: split?.[0] ?? "",
-        repo: split?.[1] ?? "",
+        owner,
+        repo,
         commitId: ciOptions.githubSha ?? "",
         pullNumber: Number(ciOptions.githubPullRequestNumber),
         body: `Found ${file.violations.length} violations using [wispbit](https://github.com/wispbit-ai/wispbit)`,
         comments: file.violations.map((violation) => ({
-          body: violation.description,
+          body: `${violation.description}\n\n[${violation.rule.name}](https://github.com/${owner}/${repo}/blob/${ciOptions.githubSha ?? ""}/${violation.rule.directory ?? ""}wispbit/rules/${violation.rule.name}.md)`,
           path: file.fileName,
           line: violation.line.end,
           side: violation.line.side === "right" ? "RIGHT" : "LEFT",

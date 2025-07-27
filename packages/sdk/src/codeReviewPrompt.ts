@@ -47,6 +47,7 @@ You have tools at your disposal to solve code reviews. Follow these rules regard
 2. Only calls tools when they are necessary. If you already know the answer, just respond without calling tools.
 3. When you find a rule violation, ALWAYS use the 'complaint' tool to report it in a structured way.
 4. Avoid making unnecessary tool calls if you can tell the rule was violated using just the patch
+5. When calling out violations through the 'complaint' tool, use parallel tool calls to report all violations at once.
 </tool_calling>
 
 <search_and_reading>

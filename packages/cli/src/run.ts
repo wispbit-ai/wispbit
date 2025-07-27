@@ -59,6 +59,13 @@ Options for mcp:
   --port <port>                 Set the port for the HTTP/SSE transport (default: 3000)
   --debug                       Enable debug logging for the MCP server
 
+Options for github CI provider (by default, will auto-detect if it's in github actions):
+  --github-token <token>            Set a custom GitHub token for the CI mode (env: GITHUB_TOKEN)
+  --github-owner <owner>            Set a custom GitHub owner for the CI mode (env: GITHUB_REPOSITORY_OWNER)
+  --github-repo <repo>              Set a custom GitHub repository for the CI mode (env: GITHUB_REPOSITORY_NAME)
+  --github-pull-request-number <number>  Set a custom GitHub pull request number for the CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
+  --github-commit-sha <sha>         Set a custom GitHub commit SHA for the CI mode (env: GITHUB_SHA)
+
 Global options:
   -v, --version                 Show version number
   -h, --help                    Show help
@@ -118,6 +125,23 @@ Global options:
         type: "string",
       },
 
+      // Github CI options
+      githubToken: {
+        type: "string",
+      },
+      githubOwner: {
+        type: "string",
+      },
+      githubRepo: {
+        type: "string",
+      },
+      githubPullRequestNumber: {
+        type: "string",
+      },
+      githubCommitSha: {
+        type: "string",
+      },
+
       // Global options
       version: {
         type: "boolean",
@@ -173,6 +197,20 @@ const constructCiOptions = (): CiOptions => {
   if (githubContext.payload?.pull_request?.base.sha || cli.flags.ciProvider === "github") {
     return {
       ciProvider: "github",
+      githubToken: cli.flags.githubToken ?? process.env.GITHUB_TOKEN ?? "",
+      githubOwner:
+        cli.flags.githubOwner ?? process.env.GITHUB_REPOSITORY_OWNER ?? githubContext.repo.owner,
+      githubRepo:
+        cli.flags.githubRepo ?? process.env.GITHUB_REPOSITORY_NAME ?? githubContext.repo.repo,
+      githubPullRequestNumber:
+        cli.flags.githubPullRequestNumber ??
+        process.env.GITHUB_PULL_REQUEST_NUMBER ??
+        githubContext.payload.pull_request?.number?.toString() ??
+        undefined,
+      githubCommitSha:
+        cli.flags.githubCommitSha ??
+        process.env.GITHUB_SHA ??
+        githubContext.payload.pull_request?.base.sha,
     }
   }
 

@@ -1,0 +1,33 @@
+name: Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: code-review-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.8.0
+          run_install: false
+
+      - name: Cache wispbit
+        id: cache-wispbit
+        uses: actions/cache@v4
+        with:
+          path: ~/.wispbit
+          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit
+
+      - name: Run wispbit code review
+        run: pnpm dlx @wispbit/cli review --ci --ci-provider github --provider openrouter --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} --model anthropic/claude-sonnet-4

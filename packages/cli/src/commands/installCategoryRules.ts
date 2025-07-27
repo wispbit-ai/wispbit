@@ -5,7 +5,6 @@ import { getRuleFromFile, getRulesFromRoot } from "@wispbit/sdk/codebaseRules"
 import { CodebaseRule } from "@wispbit/sdk/types"
 import fs from "fs-extra"
 
-import { installCustomRule } from "@wispbit/cli/commands/installCustomRule"
 import { installRule } from "@wispbit/cli/install"
 
 import { findGitRoot } from "../git"

@@ -1,0 +1,17 @@
+name: Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: test-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests
+    uses: ./.github/workflows/test.yaml
+    with:
+      job: test
+    secrets: inherit

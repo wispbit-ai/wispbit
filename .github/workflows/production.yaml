@@ -7,42 +7,11 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    env:
-      AI_KEY: ai_key
-    steps:
-      - uses: actions/checkout@v4
-      - uses: awalsh128/cache-apt-pkgs-action@v1.4.3
-        with:
-          packages: git ripgrep
-          version: 1.0
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.8.0
-          run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.x"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Run eslint
-        run: pnpm lint
-
-      - name: Run prettier
-        run: pnpm lint:prettier
-
-      - name: Compile typescript
-        run: pnpm compile
-
-      - name: Run tests
-        run: pnpm test
+    name: Tests
+    uses: ./.github/workflows/test.yaml
+    with:
+      job: test
+    secrets: inherit
 
   deploy:
     needs: test

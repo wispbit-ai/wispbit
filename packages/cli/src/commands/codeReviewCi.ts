@@ -1,4 +1,4 @@
-import { getOctokit, context } from "@actions/github"
+import { getOctokit } from "@actions/github"
 import chalk from "chalk"
 
 import { runCodeReview } from "@wispbit/cli/codeReview"
@@ -64,12 +64,12 @@ export async function runCodeReviewCi(
 
           for (const violation of file.violations) {
             await createGithubPullRequestComment(octokit, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pullNumber: context.payload.pull_request!.number,
+              owner: ciOptions.githubOwner!,
+              repo: ciOptions.githubRepo!,
+              pullNumber: Number(ciOptions.githubPullRequestNumber),
               body: violation.description,
               path: file.fileName,
-              commitId: context.payload.pull_request!.head.sha,
+              commitId: ciOptions.githubCommitSha!,
               line: violation.line.end,
               side: violation.line.side === "right" ? "RIGHT" : "LEFT",
               startLine:

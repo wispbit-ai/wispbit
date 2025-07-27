@@ -24,6 +24,11 @@ export interface CodeReviewOptions {
 
 export interface CiOptions {
   ciProvider?: "github" | "none"
+  githubToken?: string
+  githubOwner?: string
+  githubRepo?: string
+  githubPullRequestNumber?: string
+  githubCommitSha?: string
 }
 
 export interface CodeReviewHooks {

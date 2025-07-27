@@ -15,10 +15,7 @@ import {
   ReadFileParameters,
 } from "@wispbit/sdk/CodeReviewerExecutor"
 import { CodeReviewerViolationValidator } from "@wispbit/sdk/CodeReviewerViolationValidator"
-import {
-  getCodeReviewUserPrompt,
-  getCodeReviewSystemPrompt,
-} from "@wispbit/sdk/codeReviewPrompt"
+import { getCodeReviewUserPrompt, getCodeReviewSystemPrompt } from "@wispbit/sdk/codeReviewPrompt"
 import { CLAUDE_4_SONNET } from "@wispbit/sdk/models"
 import { getOpenAICompletion, isToolResponseType } from "@wispbit/sdk/openai"
 import { CodebaseRule, FileAnalysis, FileChange, Violation } from "@wispbit/sdk/types"
@@ -228,7 +225,7 @@ export class CodeReviewer {
       })
 
       // Process each tool call using executeTool
-      for (const toolCall of response.toolCalls) {
+      const toolCallPromises = response.toolCalls.map(async (toolCall) => {
         // Parse the tool arguments
         const args = JSON.parse(toolCall.function.arguments)
 
@@ -248,6 +245,25 @@ export class CodeReviewer {
           args
         )
 
+        this.logger.debug(
+          { file: file.filename, toolCall: toolCall.function.name, result: toolResult },
+          "tool call result"
+        )
+
+        return {
+          toolCall,
+          toolResult,
+          args,
+        }
+      })
+
+      // Wait for all tool calls to complete
+      const toolCallResults = await Promise.all(toolCallPromises)
+
+      // Process results in order and add to messages
+      const violationsToValidate: Violation[] = []
+
+      for (const { toolCall, toolResult, args } of toolCallResults) {
         // Add the tool result to the conversation
         messages.push({
           role: "tool",
@@ -255,17 +271,12 @@ export class CodeReviewer {
           content: JSON.stringify(toolResult),
         })
 
-        this.logger.debug(
-          { file: file.filename, toolCall: toolCall.function.name, result: toolResult },
-          "tool call result"
-        )
-
         if (toolCall.function.name === "read_file" && !("error" in toolResult)) {
           const readFileParams = args as ReadFileParameters
           visitedFiles.push(readFileParams.target_file)
         }
 
-        // Handle complaint tool calls - collect violations
+        // Handle complaint tool calls - collect violations for validation
         if (toolCall.function.name === "complaint" && !("error" in toolResult)) {
           const complaintParams = toolResult as ComplaintParameters
 
@@ -279,8 +290,21 @@ export class CodeReviewer {
             rule: rules.find((r) => r.id === complaintParams.rule_id)!,
           }
 
-          // Validate the violation before adding it
+          violationsToValidate.push(violation)
+        }
+      }
+
+      // Validate all violations in parallel
+      if (violationsToValidate.length > 0) {
+        const validationPromises = violationsToValidate.map(async (violation) => {
           const validationResult = await this.violationValidator.validateViolation(violation, file)
+          return { violation, validationResult }
+        })
+
+        const validationResults = await Promise.all(validationPromises)
+
+        // Process validation results
+        for (const { violation, validationResult } of validationResults) {
           totalCost = totalCost.plus(validationResult.cost)
 
           if (validationResult.isValid) {

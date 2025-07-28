@@ -282,7 +282,6 @@ async function main() {
         if (subcommand === "purge") {
           await purgeCache()
           console.log(chalk.green("wispbit cache purged"))
-          console.log(chalk.green("wispbit cache purged"))
         }
         break
       }

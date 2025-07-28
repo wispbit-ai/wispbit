@@ -45,11 +45,10 @@ jobs:
             --base ${{ github.event.pull_request.base.sha }} > wispbit-review.md
 
       - name: Comment if violations found
-        uses: thollander/actions-comment-pull-request@v1
+        uses: thollander/actions-comment-pull-request@v3
         with:
-          message: |
-            $(cat wispbit-review.md)
-          GITHUB_TOKEN: ${{ github.token }}
+          file-path: wispbit-review.md
+          github-token: ${{ github.token }}
 
       # - name: Save wispbit cache (force)
       #   if: always()

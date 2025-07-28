@@ -49,11 +49,6 @@ jobs:
             --cache-dir=${{ runner.temp }}/.wispbit \
             --base=${{ github.event.pull_request.base.sha }}
 
-      - name: Check if .wispbit exists
-        run: |
-          echo "Contents of ${{ runner.temp }}/.wispbit:"
-          ls -al ${{ runner.temp }}/.wispbit || echo "No cache directory found"
-
       - name: Upload wispbit cache
         uses: actions/upload-artifact@v4
         with:

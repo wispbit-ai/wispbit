@@ -65,4 +65,4 @@ create a button on the home page
 run a code review using "npx @wispbit/cli@latest review --mode=markdown" and address any violations
 ```
 
-**important: use `mode=markdown` because Claude Code doesn't work well with interactive mode!**
+**Important: use `mode=markdown` because Claude Code doesn't work well with interactive mode!**

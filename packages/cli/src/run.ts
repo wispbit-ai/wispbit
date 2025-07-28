@@ -4,7 +4,7 @@ import chalk from "chalk"
 import dotenv from "dotenv"
 import meow from "meow"
 
-import { runCodeReviewCi } from "@wispbit/cli/commands/codeReviewCi"
+import { runCodeReviewHeadless } from "@wispbit/cli/commands/codeReviewHeadless"
 import { runCodeReviewInteractive } from "@wispbit/cli/commands/codeReviewInteractive"
 import { configProviderCommand } from "@wispbit/cli/commands/configProvider"
 import { hasRulesInstalled } from "@wispbit/cli/commands/installCategoryRules"
@@ -13,7 +13,7 @@ import { startServer } from "@wispbit/cli/commands/mcp"
 import { getProvider, getProviderApiKey, getProviderById } from "@wispbit/cli/config"
 import { switchContext } from "@wispbit/cli/context"
 import { purgeCache, setCustomCacheDir } from "@wispbit/cli/db"
-import { CiOptions, CodeReviewOptions } from "@wispbit/cli/types"
+import { ModeOptions, CodeReviewOptions } from "@wispbit/cli/types"
 import { promptForRuleInstall } from "@wispbit/cli/ui/ruleInstallPrompt"
 import { checkForUpdates, getLocalVersion } from "@wispbit/cli/version"
 
@@ -45,10 +45,13 @@ Options for review:
   --openrouter-api-key <key>         Set a custom API key for the OpenRouter provider (env: OPENROUTER_API_KEY)
   --anthropic-api-key <key>          Set a custom API key for the Anthropic provider (env: ANTHROPIC_API_KEY)
   --base                             Set a base branch or commit to compare against (default: repository's default branch, such as origin/main or origin/master)
-  --ci                               Runs in CI mode - will attempt to call the provider's API to make comments on the pull request when violations are found.
-  --ci-provider <provider>            Set the provider for the CI mode (default: none; options: github, none)
-                                       Will auto-detect if it's in github actions.
-  --cache-dir <directory>              Set custom cache directory for storing cached review data (default: ~/.wispbit). Useful if you want to set up custom caching between runs in CI.
+  --mode <mode>                      Set the mode when running the review (default: interactive; options: interactive, github, plaintext, markdown)
+                                     - interactive: Runs in interactive mode, best for local usage
+                                     - github: Creates PR review comments (requires GitHub token and repo info)
+                                     - plaintext: Logs results to stdout as plaintext, to let you manually integrate with other CI tools
+                                     - markdown: Logs results to stdout as markdown, to let you manually integrate with other CI tools
+
+  --cache-dir <directory>            Set custom cache directory for storing cached review data (default: ~/.wispbit). Useful if you want to set up custom caching between runs in CI.
   --debug                            Enable debug logging for code review (prints more info)
 
 Options for mcp:
@@ -56,11 +59,11 @@ Options for mcp:
   --port <port>                      Set the port for the HTTP/SSE transport (default: 3000)
   --debug                            Enable debug logging for the MCP server
 
-Options for github CI provider (by default, will auto-detect if it's in github actions):
-  --github-token <token>              Set a custom GitHub token for the CI mode (env: GITHUB_TOKEN)
-  --github-repository <repo>         Set a custom GitHub repository for the CI mode. Should be in format <owner>/<repo> (env: GITHUB_REPOSITORY)
-  --github-pull-request-number <number>  Set a custom GitHub pull request number for the CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
-  --github-sha <sha>                  The SHA to use when making comments on the PR (env: GITHUB_SHA)
+Options for GitHub mode:
+  --github-token <token>                Set a custom GitHub token for CI mode (env: GITHUB_TOKEN)
+  --github-repository <owner>/<repo>    Set the GitHub repository for CI mode (env: GITHUB_REPOSITORY)
+  --github-pull-request-number <number> Set the GitHub pull request number for CI mode (env: GITHUB_PULL_REQUEST_NUMBER)
+  --github-sha <sha>                    The SHA to use when making comments on the PR (env: GITHUB_SHA)
   
 Global options:
   -v, --version                      Show version number
@@ -98,12 +101,9 @@ Global options:
       cacheDir: {
         type: "string",
       },
-      ci: {
-        type: "boolean",
-        default: false,
-      },
-      ciProvider: {
+      mode: {
         type: "string",
+        default: "interactive",
       },
       debug: {
         type: "boolean",
@@ -185,10 +185,10 @@ const constructCodeReviewOptions = (): CodeReviewOptions => {
   }
 }
 
-const constructCiOptions = (): CiOptions => {
+const constructModeOptions = (): ModeOptions => {
   if (githubContext.payload?.pull_request?.base.sha || cli.flags.ciProvider === "github") {
     return {
-      ciProvider: "github",
+      mode: "github",
       githubToken: cli.flags.githubToken ?? process.env.GITHUB_TOKEN ?? "",
       githubRepository:
         cli.flags.githubRepository ?? process.env.GITHUB_REPOSITORY ?? githubContext.repo.repo,
@@ -205,8 +205,8 @@ const constructCiOptions = (): CiOptions => {
   }
 
   return {
-    ciProvider: "none",
-  }
+    mode: (cli.flags.mode ?? "interactive") as "interactive" | "github" | "plaintext" | "markdown",
+  } satisfies ModeOptions
 }
 
 /**
@@ -269,10 +269,10 @@ async function main() {
       }
 
       case "review": {
-        if (cli.flags.ci) {
-          runCodeReviewCi(constructCodeReviewOptions(), constructCiOptions())
+        if (cli.flags.mode !== "interactive") {
+          await runCodeReviewHeadless(constructCodeReviewOptions(), constructModeOptions())
         } else {
-          runCodeReviewInteractive(constructCodeReviewOptions())
+          await runCodeReviewInteractive(constructCodeReviewOptions())
         }
 
         break

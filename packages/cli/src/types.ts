@@ -22,8 +22,8 @@ export interface CodeReviewOptions {
   base?: string
 }
 
-export interface CiOptions {
-  ciProvider?: "github" | "none"
+export interface ModeOptions {
+  mode: "interactive" | "github" | "plaintext" | "markdown"
   githubToken?: string
   githubRepository?: string
   githubPullRequestNumber?: string

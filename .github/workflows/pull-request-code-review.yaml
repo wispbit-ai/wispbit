@@ -28,7 +28,7 @@ jobs:
           version: 10.8.0
           run_install: false
 
-      - name: Download artifact (if exists)
+      - name: Download wispbit cache
         uses: actions/download-artifact@v4
         with:
           name: wispbit-cache-pr-${{ github.event.pull_request.number }}
@@ -49,7 +49,7 @@ jobs:
             --cache-dir=/home/runner/.wispbit \
             --base=${{ github.event.pull_request.base.sha }}
 
-      - name: Upload artifact
+      - name: Upload wispbit cache
         uses: actions/upload-artifact@v4
         with:
           name: wispbit-cache-pr-${{ github.event.pull_request.number }}

@@ -12,8 +12,7 @@ jobs:
   code-review:
     runs-on: ubuntu-latest
     permissions:
-      actions: write # for wispbit to have permission to download and upload artifacts
-      pull-requests: write # for wispbit to have permission to comment on the PR
+      pull-requests: write
       contents: read
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -28,12 +27,14 @@ jobs:
           version: 10.8.0
           run_install: false
 
-      - name: Download wispbit cache (if exists)
-        uses: actions/download-artifact@v4
+      - name: Restore cache
+        id: cache-wispbit
+        uses: actions/cache@v4
         with:
-          name: wispbit-cache-pr-${{ github.event.pull_request.number }}
           path: ${{ runner.temp }}/.wispbit
-        continue-on-error: true
+          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}
+          restore-keys: |
+            ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-
 
       - name: Run wispbit code review
         run: |
@@ -49,9 +50,9 @@ jobs:
             --cache-dir=${{ runner.temp }}/.wispbit \
             --base=${{ github.event.pull_request.base.sha }}
 
-      - name: Upload wispbit cache
-        uses: actions/upload-artifact@v4
+      - name: Save wispbit cache
+        if: always()
+        uses: actions/cache/save@v4
         with:
-          name: wispbit-cache-pr-${{ github.event.pull_request.number }}
-          path: ${{ runner.temp }}/.wispbit/wispbit-cache.json
-          retention-days: 7
+          path: ${{ runner.temp }}/.wispbit
+          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}

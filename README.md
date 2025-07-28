@@ -31,7 +31,7 @@ wispbit works best if you struggle to keep codebase standards alive and transfer
 [See this doc (Github Actions, CI, MCP, Claude Code, Background agents)](./USE_CASES.md)
 
 ### Rules
-wispbit works best with high quality rules. Add rules from the [wispbit rules page](https://wispbit.com/rules) or create your own.
+Find examples of high quality rules on the [wispbit rules page](https://wispbit.com/rules) or create your own. They are free to use.
 
 ### FAQ
 **Why not use a code editor (Cursor, Claude, Cline, etc) to review code?**

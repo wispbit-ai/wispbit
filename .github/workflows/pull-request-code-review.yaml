@@ -32,7 +32,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: wispbit-cache-pr-${{ github.event.pull_request.number }}
-          path: ~/.wispbit
+          path: /home/runner/.wispbit
         continue-on-error: true
 
       - name: Run wispbit code review
@@ -46,12 +46,12 @@ jobs:
             --provider=openrouter \
             --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \
             --model=anthropic/claude-sonnet-4 \
-            --cache-dir=~/.wispbit \
+            --cache-dir=/home/runner/.wispbit \
             --base=${{ github.event.pull_request.base.sha }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: wispbit-cache-pr-${{ github.event.pull_request.number }}
-          path: ~/.wispbit
+          path: /home/runner/.wispbit
           retention-days: 7

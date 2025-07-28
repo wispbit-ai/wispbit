@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-review:
+  code-review-2:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write # for wispbit to have permission to comment on the PR

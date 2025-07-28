@@ -1,20 +1,16 @@
 Use wispbit in different scenarios:
 
-### CI - GitHub Actions
+### CI
 
-#### Automated Pull Request Reviews
+#### Github Integration
 
-For full GitHub integration with inline comments on pull requests, use the main workflow:
-
-See [pull-request-code-review.yaml](.github/workflows/pull-request-code-review.yaml)
-
-[Example pull request](https://github.com/wispbit-ai/wispbit/pull/3)
+For full GitHub integration with inline comments on pull requests, see [pull-request-code-review.yaml](.github/workflows/pull-request-code-review.yaml). [Example pull request](https://github.com/wispbit-ai/wispbit/pull/3).
 
 This workflow:
 
 - Runs automatically on PR open/sync
 - Posts inline comments directly on the PR
-- Supports caching for performance
+- Supports caching for performance and cost reduction
 
 #### Alternative: Markdown/Plaintext Comment Reviews
 

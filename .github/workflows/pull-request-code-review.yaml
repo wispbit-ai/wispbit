@@ -12,6 +12,7 @@ jobs:
   code-review:
     runs-on: ubuntu-latest
     permissions:
+      actions: write # for wispbit to have permission to download and upload artifacts
       pull-requests: write # for wispbit to have permission to comment on the PR
       contents: read
     env:
@@ -27,14 +28,16 @@ jobs:
           version: 10.8.0
           run_install: false
 
-      - name: Load wispbit cache
-        id: cache-wispbit
-        uses: actions/cache@v4
+      - name: Set up wispbit cache dir
+        shell: bash
+        run: mkdir -p ~/.wispbit
+
+      - name: Download artifact (if exists)
+        uses: actions/download-artifact@v4
         with:
+          name: pr-${{ inputs.pr-number }}-wispbit
           path: ~/.wispbit
-          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}
-          restore-keys: |
-            ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-
+        continue-on-error: true
 
       - name: Run wispbit code review
         run: |
@@ -50,9 +53,13 @@ jobs:
             --cache-dir=~/.wispbit \
             --base=${{ github.event.pull_request.base.sha }}
 
-      - name: Save wispbit cache
-        if: always()
-        uses: actions/cache/save@v4
+      - name: Compress updated wispbit cache
+        shell: bash
+        run: tar -czf wispbit-cache.tgz -C ~/.wispbit .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.wispbit
-          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}
+          name: pr-${{ inputs.pr-number }}-wispbit
+          path: wispbit-cache.tgz
+          retention-days: 7

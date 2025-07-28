@@ -1,7 +1,7 @@
 <p align="center">
     <a href="https://wispbit.com">
         <picture>
-            <img src="/assets/banner.png" alt="wispbit logo" width="100">
+            <img src="assets/banner.png" alt="wispbit logo" width="100">
         </picture>
     </a>
 </p>
@@ -11,7 +11,7 @@
 <p align="center">
     <a href="https://wispbit.com">
         <picture>
-            <img src="/assets/screenshot.png" alt="wispbit logo">
+            <img src="assets/screenshot.png" alt="wispbit logo">
         </picture>
     </a>
 </p>

@@ -1,5 +1,3 @@
-Use wispbit in different scenarios:
-
 ### CI
 
 #### Github Integration

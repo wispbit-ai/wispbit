@@ -263,16 +263,16 @@ async function main() {
         const port = cli.flags.port ? parseInt(cli.flags.port) : 3000
         const transport = cli.flags.transport as "stdio" | "http" | "sse"
 
-        startServer(port, transport, constructCodeReviewOptions())
+        await startServer(port, transport, constructCodeReviewOptions())
 
         break
       }
 
       case "review": {
         if (cli.flags.mode !== "interactive") {
-          runCodeReviewHeadless(constructCodeReviewOptions(), constructModeOptions())
+          await runCodeReviewHeadless(constructCodeReviewOptions(), constructModeOptions())
         } else {
-          runCodeReviewInteractive(constructCodeReviewOptions())
+          await runCodeReviewInteractive(constructCodeReviewOptions())
         }
 
         break

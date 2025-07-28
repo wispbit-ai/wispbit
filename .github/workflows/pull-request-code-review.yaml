@@ -32,9 +32,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/.wispbit
-          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}
+          key: wispbit-cache-${{ github.repository }}-pr-${{ github.event.pull_request.number }}-run-${{ github.run_id }}
           restore-keys: |
-            ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-
+            wispbit-cache-${{ github.repository }}-pr-${{ github.event.pull_request.number }}-run-
 
       - name: Run wispbit code review
         run: |
@@ -55,4 +55,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ${{ runner.temp }}/.wispbit
-          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}
+          key: wispbit-cache-${{ github.repository }}-pr-${{ github.event.pull_request.number }}-run-${{ github.run_id }}

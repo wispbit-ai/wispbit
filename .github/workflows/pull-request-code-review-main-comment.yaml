@@ -55,10 +55,3 @@ jobs:
         with:
           file-path: wispbit-review.md
           github-token: ${{ github.token }}
-
-      - name: Save wispbit cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ runner.temp }}/.wispbit
-          key: wispbit-cache-${{ github.repository }}-pr-${{ github.event.pull_request.number }}-run-${{ github.run_id }}

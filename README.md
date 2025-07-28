@@ -27,10 +27,11 @@ wispbit works best if you struggle to keep codebase standards alive and transfer
 1. `npx @wispbit/cli@latest configure`
 2. `npx @wispbit/cli@latest review`
 
-wispbit works best with high quality rules. Add more rules from the [wispbit rules page](https://wispbit.com/rules) or create your own.
-
 ### Use cases
 [See this doc (Github Actions, CI, MCP, Claude Code, Background agents)](./USE_CASES.md)
+
+### Rules
+wispbit works best with high quality rules. Add rules from the [wispbit rules page](https://wispbit.com/rules) or create your own.
 
 ### FAQ
 **Why not use a code editor (Cursor, Claude, Cline, etc) to review code?**

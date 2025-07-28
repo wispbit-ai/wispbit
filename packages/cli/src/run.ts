@@ -270,9 +270,9 @@ async function main() {
 
       case "review": {
         if (cli.flags.mode !== "interactive") {
-          await runCodeReviewHeadless(constructCodeReviewOptions(), constructModeOptions())
+          runCodeReviewHeadless(constructCodeReviewOptions(), constructModeOptions())
         } else {
-          await runCodeReviewInteractive(constructCodeReviewOptions())
+          runCodeReviewInteractive(constructCodeReviewOptions())
         }
 
         break

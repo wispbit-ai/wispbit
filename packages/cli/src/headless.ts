@@ -23,6 +23,8 @@ export async function formatAsGithubPullRequestReview(
     if (file.violations && file.violations.length > 0) {
       totalViolations += file.violations.length
       for (const violation of file.violations) {
+        // skip cached violations from making comments again
+        if (violation.isCached) continue
         allComments.push({
           body: `[${violation.rule.name}](https://github.com/${ciOptions.githubRepository?.split("/")[0]}/${ciOptions.githubRepository?.split("/")[1]}/blob/${ciOptions.githubSha ?? ""}/${violation.rule.directory ?? ""}.wispbit/rules/${violation.rule.name}.md) ${violation.description}`,
           path: file.fileName,

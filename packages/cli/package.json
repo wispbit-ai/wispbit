@@ -1,6 +1,6 @@
 {
   "name": "@wispbit/cli",
-  "version": "2.0.19",
+  "version": "2.0.20",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",

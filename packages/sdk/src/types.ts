@@ -47,6 +47,9 @@ export interface Violation {
   rule: CodebaseRule
   /** Reasoning for why the violation was validated */
   validationReasoning?: string
+
+  /** Whether the violation was read from the cache */
+  isCached?: boolean
 }
 
 /**

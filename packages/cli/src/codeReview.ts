@@ -127,6 +127,7 @@ export async function runCodeReview({
             description: v.description,
             line: v.line,
             rule: allowedRules.find((r) => r.id === v.description) || allowedRules[0], // This might need adjustment based on how rule mapping works
+            isCached: true,
           }))
 
           returnViolations.push({

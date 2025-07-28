@@ -39,11 +39,15 @@ export async function runCodeReviewHeadless(
               if (ciOptions.mode === "github") {
                 if (violationCount === 0) {
                   console.log(
-                    chalk.green(`[wispbit] ✓ ${file.fileName} (${ruleCount} rules, no violations)`)
+                    chalk.green(
+                      `[wispbit] ✓ ${file.fileName} (${ruleCount} rules, no violations) ${file.skippedReason ? `(${file.skippedReason})` : ""}`
+                    )
                   )
                 } else {
                   console.log(
-                    chalk.yellow(`[wispbit] ⚠ ${file.fileName} (${violationCount} violations)`)
+                    chalk.yellow(
+                      `[wispbit] ⚠ ${file.fileName} (${violationCount} violations) ${file.skippedReason ? `(${file.skippedReason})` : ""}`
+                    )
                   )
                 }
               }

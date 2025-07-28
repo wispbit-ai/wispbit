@@ -31,18 +31,34 @@ jobs:
           version: 10.8.0
           run_install: false
 
+      - name: Load wispbit cache
+        id: cache-wispbit
+        uses: actions/cache@v4
+        with:
+          path: ~/.wispbit
+          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}
+          restore-keys: |
+            ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-
+
       - name: Run wispbit code review and save output
         run: |
           pnpm dlx @wispbit/cli review \
-            --mode markdown \
-            --provider openrouter \
+            --mode=markdown \
+            --provider=openrouter \
             --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \
-            --model anthropic/claude-sonnet-4 \
-            --cache-dir ~/.wispbit \
-            --base ${{ github.event.pull_request.base.sha }} > wispbit-review.md
+            --model=anthropic/claude-sonnet-4 \
+            --cache-dir=~/.wispbit \
+            --base=${{ github.event.pull_request.base.sha }} > wispbit-review.md
 
       - name: Comment if violations found
         uses: thollander/actions-comment-pull-request@v3
         with:
           file-path: wispbit-review.md
           github-token: ${{ github.token }}
+
+      - name: Save wispbit cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.wispbit
+          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}

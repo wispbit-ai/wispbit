@@ -27,6 +27,15 @@ jobs:
           version: 10.8.0
           run_install: false
 
+      - name: Load wispbit cache
+        id: cache-wispbit
+        uses: actions/cache@v4
+        with:
+          path: ~/.wispbit
+          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}
+          restore-keys: |
+            ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-
+
       - name: Run wispbit code review
         run: |
           pnpm dlx @wispbit/cli review \
@@ -40,3 +49,10 @@ jobs:
             --model=anthropic/claude-sonnet-4 \
             --cache-dir=~/.wispbit \
             --base=${{ github.event.pull_request.base.sha }}
+
+      - name: Save wispbit cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.wispbit
+          key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit-${{ github.run_id }}

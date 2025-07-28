@@ -58,5 +58,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: wispbit-cache-pr-${{ github.event.pull_request.number }}
-          path: ${{ runner.tool_cache }}/.wispbit
+          path: ${{ runner.tool_cache }}/.wispbit/**
           retention-days: 7

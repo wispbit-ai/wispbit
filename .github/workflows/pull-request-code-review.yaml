@@ -48,4 +48,4 @@ jobs:
             --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \
             --model=anthropic/claude-sonnet-4 \
             --cache-dir=${{ runner.temp }}/.wispbit \
-            --base=${{ github.event.pull_request.base.sha }}
+            --base=origin/${{ github.event.pull_request.base.ref }}

@@ -186,7 +186,7 @@ const constructCodeReviewOptions = (): CodeReviewOptions => {
 }
 
 const constructModeOptions = (): ModeOptions => {
-  if (githubContext.payload?.pull_request?.base.sha || cli.flags.ciProvider === "github") {
+  if (cli.flags.ciProvider === "github") {
     return {
       mode: "github",
       githubToken: cli.flags.githubToken ?? process.env.GITHUB_TOKEN ?? "",

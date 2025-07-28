@@ -1,15 +1,15 @@
-name: Code Review 2
+name: Code Review Main Comment
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: []
 
 concurrency:
-  group: code-review-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+  group: code-review-main-comment-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  code-review-2:
+  code-review-main-comment:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write # for wispbit to have permission to comment on the PR
@@ -27,13 +27,6 @@ jobs:
           version: 10.8.0
           run_install: false
 
-      # - name: Load wispbit cache
-      #   id: cache-wispbit
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.wispbit
-      #     key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit
-
       - name: Run wispbit code review and save output
         run: |
           pnpm dlx @wispbit/cli review \
@@ -49,10 +42,3 @@ jobs:
         with:
           file-path: wispbit-review.md
           github-token: ${{ github.token }}
-
-      # - name: Save wispbit cache (force)
-      #   if: always()
-      #   uses: actions/cache/save@v4
-      #   with:
-      #     path: ~/.wispbit
-      #     key: ${{ github.repository }}-${{ github.event.pull_request.number }}-wispbit

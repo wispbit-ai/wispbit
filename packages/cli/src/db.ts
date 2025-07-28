@@ -7,7 +7,7 @@ import { CodebaseRule, FileChange, Violation } from "@wispbit/sdk/types"
 import { Low } from "lowdb"
 import { JSONFile } from "lowdb/node"
 
-import { CONFIG_DIR } from "@wispbit/cli/config"
+import { CONFIG_DIR, ensureDirExists } from "@wispbit/cli/config"
 import { ViolationDetail } from "@wispbit/cli/types"
 
 let cacheDir: string | undefined
@@ -51,7 +51,9 @@ const databases = new Map<string, Low<DatabaseSchema>>()
 
 // Initialize the database
 async function initializeDb() {
-  const dbPath = join(cacheDir || CONFIG_DIR, `wispbit-cache.json`)
+  const cache = cacheDir || CONFIG_DIR
+  ensureDirExists(cache)
+  const dbPath = join(cache, `wispbit-cache.json`)
 
   if (databases.has(dbPath)) {
     return databases.get(dbPath)!

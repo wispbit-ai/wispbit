@@ -25,9 +25,9 @@ interface WispbitConfig {
 /**
  * Ensure the config directory exists
  */
-function ensureConfigDirExists(): void {
-  if (!fs.existsSync(CONFIG_DIR)) {
-    fs.mkdirSync(CONFIG_DIR, { recursive: true })
+export function ensureDirExists(dir: string): void {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true })
   }
 }
 
@@ -35,7 +35,7 @@ function ensureConfigDirExists(): void {
  * Load the config from disk
  */
 export function loadConfig(): WispbitConfig {
-  ensureConfigDirExists()
+  ensureDirExists(CONFIG_DIR)
 
   if (!fs.existsSync(CONFIG_FILE)) {
     saveConfig(DEFAULT_CONFIG)
@@ -55,7 +55,7 @@ export function loadConfig(): WispbitConfig {
  * Save the config to disk
  */
 export function saveConfig(config: WispbitConfig): void {
-  ensureConfigDirExists()
+  ensureDirExists(CONFIG_DIR)
   fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2))
 }
 

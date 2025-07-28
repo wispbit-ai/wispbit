@@ -1,0 +1,48 @@
+name: Code Review Main Comment
+
+on:
+  workflow_dispatch: # Manual trigger only
+    inputs:
+      never_run:
+        description: "This action is disabled"
+        required: true
+        default: "false"
+
+concurrency:
+  group: code-review-main-comment-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-review-main-comment:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # for wispbit to have permission to comment on the PR
+      contents: read
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.8.0
+          run_install: false
+
+      - name: Run wispbit code review and save output
+        run: |
+          pnpm dlx @wispbit/cli review \
+            --mode markdown \
+            --provider openrouter \
+            --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \
+            --model anthropic/claude-sonnet-4 \
+            --cache-dir ~/.wispbit \
+            --base ${{ github.event.pull_request.base.sha }} > wispbit-review.md
+
+      - name: Comment if violations found
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          file-path: wispbit-review.md
+          github-token: ${{ github.token }}

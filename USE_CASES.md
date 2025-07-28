@@ -54,7 +54,7 @@ npx @wispbit/cli@latest review
 If your AI Editor supports CLI commands, you can use a simple prompt:
 
 ```text
-run a code review using "npx @wispbit/cli@latest review" and address any violations
+run a code review using "npx @wispbit/cli@latest review --mode=markdown" and address any violations
 ```
 
 Ideally, chain it after running a task
@@ -62,5 +62,7 @@ Ideally, chain it after running a task
 ```text
 create a button on the home page
 
-run a code review using "npx @wispbit/cli@latest review" and address any violations
+run a code review using "npx @wispbit/cli@latest review --mode=markdown" and address any violations
 ```
+
+**important: use `mode=markdown` because Claude Code doesn't work well with interactive mode!**

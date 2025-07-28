@@ -43,13 +43,13 @@ const getStatusIcon = (
   switch (status) {
     case "completed":
       return (violations && violations > 0) || skippedReason === "error"
-        ? { icon: "✖", color: "red" }
+        ? { icon: "⨉", color: "red" }
         : { icon: "✓", color: "green" }
     case "skipped":
       // Show red X for skipped files with previous review that have violations
       if (skippedReason === "cached") {
         if (violations && violations > 0) {
-          return { icon: "✖", color: "red" }
+          return { icon: "⨉", color: "red" }
         }
         return { icon: "✓", color: "green" }
       }

@@ -116,8 +116,9 @@ export async function runCodeReview({
 
           onUpdateFile?.({
             fileName: file.filename,
-            status: "completed",
-            violations: cachedViolations.length > 0 ? undefined : undefined, // Convert cached format if needed
+            status: "skipped",
+            skippedReason: "cached",
+            violations: cachedViolations.length > 0 ? cachedViolations : undefined,
             rules: allowedRules,
           })
 

@@ -9,6 +9,7 @@ export function switchContext(contextDir: string): void {
     if (!stats.isDirectory()) {
       console.error(chalk.red(`Error: '${contextDir}' is not a directory\n`))
       console.error(chalk.red(`Error: '${contextDir}' is not a directory\n`))
+      console.error(chalk.red(`Error: '${contextDir}' is not a directory\n`))
       process.exit(1)
     }
 

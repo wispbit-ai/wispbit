@@ -290,8 +290,6 @@ export const readFileTool: ChatCompletionTool = {
       ],
     },
   },
-  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
-  cache_control: { type: "ephemeral" },
 }
 
 export const grepSearchTool: ChatCompletionTool = {
@@ -323,8 +321,6 @@ export const grepSearchTool: ChatCompletionTool = {
       required: ["query"],
     },
   },
-  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
-  cache_control: { type: "ephemeral" },
 }
 
 export const listDirTool: ChatCompletionTool = {
@@ -349,8 +345,6 @@ export const listDirTool: ChatCompletionTool = {
       required: ["relative_workspace_path"],
     },
   },
-  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
-  cache_control: { type: "ephemeral" },
 }
 
 export const globSearchTool: ChatCompletionTool = {
@@ -374,8 +368,6 @@ export const globSearchTool: ChatCompletionTool = {
       required: ["pattern"],
     },
   },
-  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
-  cache_control: { type: "ephemeral" },
 }
 
 const complaintTool: ChatCompletionTool = {
@@ -419,8 +411,6 @@ const complaintTool: ChatCompletionTool = {
       required: ["file_path", "line_start", "line_end", "line_side", "description", "rule"],
     },
   },
-  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
-  cache_control: { type: "ephemeral" },
 }
 
 /**

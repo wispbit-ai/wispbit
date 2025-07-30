@@ -26,7 +26,7 @@ export async function formatAsGithubPullRequestReview(
         // skip cached violations from making comments again
         if (violation.isCached) continue
         allComments.push({
-          body: `[${violation.rule.name}](https://github.com/${ciOptions.githubRepository?.split("/")[0]}/${ciOptions.githubRepository?.split("/")[1]}/blob/${ciOptions.githubSha ?? ""}/${violation.rule.directory ?? ""}.wispbit/rules/${violation.rule.name}.md) ${violation.description}`,
+          body: `[${violation.rule.name}](https://github.com/${ciOptions.githubRepository?.split("/")[0]}/${ciOptions.githubRepository?.split("/")[1]}/blob/${ciOptions.githubSha ?? ""}/${violation.rule.directory ? violation.rule.directory + "/" : ""}.wispbit/rules/${violation.rule.name}.md) ${violation.description}`,
           path: file.fileName,
           line: violation.line.end,
           side: violation.line.side === "right" ? "RIGHT" : "LEFT",

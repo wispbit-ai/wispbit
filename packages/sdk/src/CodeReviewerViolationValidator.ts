@@ -19,29 +19,6 @@ type CodeReviewerViolationValidatorOptions = {
 
 const prettify = prettyFactory({ sync: true })
 
-const validationTool = {
-  type: "function" as const,
-  function: {
-    name: "report_validation",
-    description: "Report whether a code violation is valid or not",
-    parameters: {
-      type: "object",
-      properties: {
-        is_valid: {
-          type: "boolean",
-          description: "Whether the violation is valid and actionable",
-        },
-        reasoning: {
-          type: "string",
-          description: "Brief explanation of the validation decision",
-        },
-      },
-      required: ["is_valid", "reasoning"],
-      additionalProperties: false,
-    },
-  },
-}
-
 export class CodeReviewerViolationValidator {
   private openai: OpenAI
   private model: string
@@ -146,7 +123,14 @@ Use the report_validation tool to report your decision and reasoning.
     const response = await this.callOpenAIWithRetry([
       {
         role: "system",
-        content: validationPrompt,
+        content: [
+          {
+            type: "text" as const,
+            text: validationPrompt,
+            // @ts-expect-error - cache_control is not a valid property of ChatCompletionContentPartText
+            cache_control: { type: "ephemeral" },
+          },
+        ],
       },
     ])
 
@@ -181,7 +165,30 @@ Use the report_validation tool to report your decision and reasoning.
       async () => {
         return await getOpenAICompletion(this.openai, {
           messages,
-          tools: [validationTool],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "report_validation",
+                description: "Report whether a code violation is valid or not",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    is_valid: {
+                      type: "boolean",
+                      description: "Whether the violation is valid and actionable",
+                    },
+                    reasoning: {
+                      type: "string",
+                      description: "Brief explanation of the validation decision",
+                    },
+                  },
+                  required: ["is_valid", "reasoning"],
+                  additionalProperties: false,
+                },
+              },
+            },
+          ],
           model: this.model,
           toolChoice: { type: "function", function: { name: "report_validation" } },
           temperature: 0.1,

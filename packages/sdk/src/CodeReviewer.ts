@@ -191,7 +191,13 @@ export class CodeReviewer {
       systemPrompt
         ? {
             role: "system",
-            content: systemPrompt,
+            content: [
+              {
+                type: "text" as const,
+                text: systemPrompt,
+                cache_control: { type: "ephemeral" },
+              },
+            ],
           }
         : undefined,
       ...userMessages,

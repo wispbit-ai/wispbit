@@ -290,6 +290,8 @@ export const readFileTool: ChatCompletionTool = {
       ],
     },
   },
+  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
+  cache_control: { type: "ephemeral" },
 }
 
 export const grepSearchTool: ChatCompletionTool = {
@@ -321,6 +323,8 @@ export const grepSearchTool: ChatCompletionTool = {
       required: ["query"],
     },
   },
+  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
+  cache_control: { type: "ephemeral" },
 }
 
 export const listDirTool: ChatCompletionTool = {
@@ -345,6 +349,8 @@ export const listDirTool: ChatCompletionTool = {
       required: ["relative_workspace_path"],
     },
   },
+  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
+  cache_control: { type: "ephemeral" },
 }
 
 export const globSearchTool: ChatCompletionTool = {
@@ -368,6 +374,53 @@ export const globSearchTool: ChatCompletionTool = {
       required: ["pattern"],
     },
   },
+  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
+  cache_control: { type: "ephemeral" },
+}
+
+const complaintTool: ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "complaint",
+    description:
+      "Report a rule violation found in the code being reviewed. Use this tool to report each violation of the rule being checked. Only report violations for files that are being reviewed. This provides structured data about violations instead of relying on text parsing. Remember, you can only report a single set of line numbers for a single violation, so you should combine line numbers if the violation spans multiple lines as needed",
+    parameters: {
+      type: "object",
+      properties: {
+        file_path: {
+          type: "string",
+          description: "The path of the file containing the violation.",
+        },
+        line_start: {
+          type: "integer",
+          description: "The start line number where the violation occurs.",
+        },
+        line_end: {
+          type: "integer",
+          description: "The end line number where the violation occurs.",
+        },
+        line_side: {
+          type: "string",
+          description:
+            "Which side of the diff the line numbers refer to: 'right' (after changes) or 'left' (before changes).",
+          enum: ["right", "left"],
+        },
+        description: {
+          type: "string",
+          description:
+            "Short sentence about what the violation is. You are going to be commenting on the PR as if you are a software engineer, so keep the following in mind when reporting a violation: 1. You can exclude line numbers from the description since we are passing them separately 2. You don't need to include the rule itself in the description, since we are passing it separately. 3. Humans prefer short sentences, so keep it concise with only the most important information about what action needs to be taken. 4. Use backticks `` when referring to code.",
+        },
+        rule_id: {
+          type: "string",
+          description:
+            "The name of the rule that is being violated. Use the `id` of the rule to report the violation.",
+        },
+      },
+      required: ["file_path", "line_start", "line_end", "line_side", "description", "rule"],
+    },
+  },
+  // @ts-expect-error - cache_control is not a valid property of ChatCompletionTool
+  cache_control: { type: "ephemeral" },
 }
 
 /**
@@ -378,46 +431,5 @@ export const codeReviewTools: Array<ChatCompletionTool> = [
   grepSearchTool,
   globSearchTool,
   listDirTool,
-  {
-    type: "function",
-    function: {
-      name: "complaint",
-      description:
-        "Report a rule violation found in the code being reviewed. Use this tool to report each violation of the rule being checked. Only report violations for files that are being reviewed. This provides structured data about violations instead of relying on text parsing. Remember, you can only report a single set of line numbers for a single violation, so you should combine line numbers if the violation spans multiple lines as needed",
-      parameters: {
-        type: "object",
-        properties: {
-          file_path: {
-            type: "string",
-            description: "The path of the file containing the violation.",
-          },
-          line_start: {
-            type: "integer",
-            description: "The start line number where the violation occurs.",
-          },
-          line_end: {
-            type: "integer",
-            description: "The end line number where the violation occurs.",
-          },
-          line_side: {
-            type: "string",
-            description:
-              "Which side of the diff the line numbers refer to: 'right' (after changes) or 'left' (before changes).",
-            enum: ["right", "left"],
-          },
-          description: {
-            type: "string",
-            description:
-              "Short sentence about what the violation is. You are going to be commenting on the PR as if you are a software engineer, so keep the following in mind when reporting a violation: 1. You can exclude line numbers from the description since we are passing them separately 2. You don't need to include the rule itself in the description, since we are passing it separately. 3. Humans prefer short sentences, so keep it concise with only the most important information about what action needs to be taken. 4. Use backticks `` when referring to code.",
-          },
-          rule_id: {
-            type: "string",
-            description:
-              "The name of the rule that is being violated. Use the `id` of the rule to report the violation.",
-          },
-        },
-        required: ["file_path", "line_start", "line_end", "line_side", "description", "rule"],
-      },
-    },
-  },
+  complaintTool,
 ]

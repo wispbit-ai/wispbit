@@ -76,7 +76,10 @@ export function getCodeReviewUserPrompt(
   return [
     {
       role: "user" as const,
-      content: `I need you to review the following file changes against these rules:
+      content: [
+        {
+          type: "text" as const,
+          text: `I need you to review the following file changes against these rules:
 
 <rules>
 ${input.rules.map((rule) => `<rule id="${rule.id}">${rule.contents}</rule>`).join("\n")}
@@ -96,6 +99,10 @@ ${input.fileChange.status}
 ${patch}
 </file_patch>
 `,
+          // @ts-expect-error - cache_control is not a valid property of ChatCompletionContentPartText
+          cache_control: { type: "ephemeral" },
+        },
+      ],
     },
   ]
 }

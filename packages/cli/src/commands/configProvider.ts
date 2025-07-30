@@ -14,7 +14,6 @@ export async function configProviderCommand(): Promise<boolean> {
 
     if (!result) {
       console.log(chalk.yellow("Configuration cancelled."))
-      console.log(chalk.yellow("Configuration cancelled."))
       return false
     }
 

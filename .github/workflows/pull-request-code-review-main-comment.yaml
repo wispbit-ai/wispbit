@@ -25,11 +25,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Install node
+        uses: actions/setup-node@v4
         with:
-          version: 10.8.0
-          run_install: false
+          node-version: 22.14.0
 
       # Use a cache to speed up subsequent runs and avoid spending unnecessary credits on files we've already reviewed
       - name: Restore wispbit cache

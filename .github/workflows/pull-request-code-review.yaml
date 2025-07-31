@@ -38,7 +38,7 @@ jobs:
 
       - name: Run wispbit code review
         run: |
-          pnpm dlx @wispbit/cli review \
+          npx @wispbit/cli review \
             --mode=github \
             --github-token=${{ github.token }} \
             --github-repository=${{ github.repository }} \

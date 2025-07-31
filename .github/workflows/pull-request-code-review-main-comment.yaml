@@ -42,7 +42,7 @@ jobs:
 
       - name: Run wispbit code review and save output
         run: |
-          pnpm dlx @wispbit/cli review \
+          npx @wispbit/cli review \
             --mode=markdown \
             --provider=openrouter \
             --openrouter-api-key=${{ secrets.OPENROUTER_API_KEY }} \

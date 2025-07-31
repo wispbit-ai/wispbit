@@ -3,3 +3,4 @@ packages:
 
 onlyBuiltDependencies:
   - "@vscode/ripgrep"
+  - esbuild

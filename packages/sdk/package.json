@@ -1,6 +1,6 @@
 {
   "name": "@wispbit/sdk",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "type": "module",
   "main": "dist/CodeReviewer.js",
   "types": "dist/CodeReviewer.d.ts",
@@ -32,6 +32,10 @@
     "./CodeReviewer": {
       "types": "./dist/src/CodeReviewer.d.ts",
       "import": "./dist/CodeReviewer.js"
+    },
+    "./CodeReviewerExecutor": {
+      "types": "./dist/src/CodeReviewerExecutor.d.ts",
+      "import": "./dist/CodeReviewerExecutor.js"
     }
   },
   "files": [

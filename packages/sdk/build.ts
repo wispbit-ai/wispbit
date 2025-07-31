@@ -93,6 +93,7 @@ async function build() {
         "src/tools.ts",
         "src/patchParser.ts",
         "src/CodeReviewer.ts",
+        "src/CodeReviewerExecutor.ts",
       ],
       bundle: true,
       platform: "node",

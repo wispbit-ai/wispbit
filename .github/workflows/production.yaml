@@ -38,3 +38,10 @@ jobs:
         run: |
           cd packages/cli
           pnpm run deploy || if [ "$?" = "403" ] && grep -q "You cannot publish over the previously published versions" <<< "$(cat)"; then echo "Package version already exists, skipping publish"; exit 0; fi
+
+      - name: Publish SDK
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/sdk
+          pnpm run deploy || if [ "$?" = "403" ] && grep -q "You cannot publish over the previously published versions" <<< "$(cat)"; then echo "Package version already exists, skipping publish"; exit 0; fi

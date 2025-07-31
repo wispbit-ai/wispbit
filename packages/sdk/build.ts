@@ -1,0 +1,132 @@
+#!/usr/bin/env node
+
+import { spawn } from "child_process"
+import fs from "fs"
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
+
+import * as esbuild from "esbuild"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+// Read package.json to get dependencies
+const packageJson = JSON.parse(fs.readFileSync(resolve(__dirname, "package.json"), "utf8"))
+const dependencies = Object.keys(packageJson.dependencies || {})
+
+// Node.js built-in modules that should always be external
+const nodeBuiltins = [
+  "assert",
+  "buffer",
+  "child_process",
+  "cluster",
+  "console",
+  "constants",
+  "crypto",
+  "dgram",
+  "dns",
+  "domain",
+  "events",
+  "fs",
+  "http",
+  "https",
+  "module",
+  "net",
+  "os",
+  "path",
+  "punycode",
+  "querystring",
+  "readline",
+  "repl",
+  "stream",
+  "string_decoder",
+  "sys",
+  "timers",
+  "tls",
+  "tty",
+  "url",
+  "util",
+  "vm",
+  "zlib",
+]
+
+function buildTypeScript() {
+  return new Promise<void>((resolve, reject) => {
+    console.log("Generating TypeScript declarations...")
+
+    const tsc = spawn(
+      "npx",
+      ["tsc", "--declaration", "--emitDeclarationOnly", "--outDir", "dist"],
+      {
+        stdio: "inherit",
+        shell: true,
+        cwd: __dirname,
+      }
+    )
+
+    tsc.on("close", (code) => {
+      if (code === 0) {
+        resolve()
+      } else {
+        reject(new Error(`TypeScript compilation failed with code ${code}`))
+      }
+    })
+  })
+}
+
+async function build() {
+  console.log("Building SDK with esbuild...")
+
+  try {
+    // Clean dist directory
+    if (fs.existsSync(resolve(__dirname, "dist"))) {
+      fs.rmSync(resolve(__dirname, "dist"), { recursive: true })
+    }
+    fs.mkdirSync(resolve(__dirname, "dist"), { recursive: true })
+
+    // Build ESM version
+    await esbuild.build({
+      entryPoints: ["src/index.ts"],
+      bundle: true,
+      platform: "node",
+      target: "node16",
+      outfile: "dist/index.js",
+      format: "esm",
+      external: [
+        // Keep external dependencies external
+        ...dependencies,
+        // Don't bundle Node.js built-in modules
+        ...nodeBuiltins,
+      ],
+      minify: false,
+      sourcemap: true,
+      treeShaking: true,
+      splitting: false,
+      metafile: true,
+    })
+
+    // Generate TypeScript declarations
+    await buildTypeScript()
+
+    console.log("Build complete!")
+
+    // Copy package.json to dist directory (optional for publishing)
+    const distPackageJson = {
+      ...packageJson,
+      devDependencies: undefined,
+      scripts: undefined,
+      private: false,
+    }
+    fs.writeFileSync(
+      resolve(__dirname, "dist/package.json"),
+      JSON.stringify(distPackageJson, null, 2)
+    )
+
+    console.log("SDK build successful!")
+  } catch (error) {
+    console.error("Build failed:", error)
+    process.exit(1)
+  }
+}
+
+build()

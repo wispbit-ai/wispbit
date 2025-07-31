@@ -10,10 +10,16 @@
     "lint:prettier": "prettier --check \"packages/**/src/**/*.{cjs,ts,tsx,css,js,jsx,html,json}\""
   },
   "dependencies": {
-    "tsx": "4.19.3"
+    "tsx": "4.19.3",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "p-retry": "^6.2.1",
+    "dotenv": "^16.3.1",
+    "fs-extra": "^11.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.17.30",
+    "@types/fs-extra": "^11.0.4",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
@@ -24,6 +30,8 @@
     "prettier": "3.2.4",
     "typescript": "^5.0.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.1",
+    "esbuild": "^0.25.3",
+    "esbuild-plugin-tsc": "^0.5.0"
   }
 }

@@ -2,5 +2,6 @@
 vitest.config.mts
 !dist/**
 !package.json
+!README.md
 __tests__/**
 **/*.test.ts

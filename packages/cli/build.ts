@@ -144,6 +144,9 @@ async function build() {
     // Copy package.json to dist directory
     fs.copyFileSync(resolve(__dirname, "package.json"), resolve(__dirname, "dist/package.json"))
 
+    // Copy README.md from workspace root to dist directory
+    fs.copyFileSync(resolve(__dirname, "../../README.md"), resolve(__dirname, "dist/README.md"))
+
     // No need for separate type generation as tscPlugin handles it
     console.log("TypeScript compilation complete.")
   } catch (error) {

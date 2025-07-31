@@ -122,6 +122,9 @@ async function build() {
       JSON.stringify(distPackageJson, null, 2)
     )
 
+    // Copy README.md to dist directory
+    fs.copyFileSync(resolve(__dirname, "README.md"), resolve(__dirname, "dist/README.md"))
+
     console.log("SDK build successful!")
   } catch (error) {
     console.error("Build failed:", error)

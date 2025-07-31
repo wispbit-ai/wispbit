@@ -1,6 +1,6 @@
 {
   "name": "@wispbit/sdk",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "type": "module",
   "main": "dist/CodeReviewer.js",
   "types": "dist/CodeReviewer.d.ts",
@@ -36,6 +36,30 @@
     "./CodeReviewerExecutor": {
       "types": "./dist/src/CodeReviewerExecutor.d.ts",
       "import": "./dist/CodeReviewerExecutor.js"
+    },
+    "./CodeReviewerViolationValidator": {
+      "types": "./dist/src/CodeReviewerViolationValidator.d.ts",
+      "import": "./dist/CodeReviewerViolationValidator.js"
+    },
+    "./models": {
+      "types": "./dist/src/models.d.ts",
+      "import": "./dist/models.js"
+    },
+    "./hash": {
+      "types": "./dist/src/hash.d.ts",
+      "import": "./dist/hash.js"
+    },
+    "./fileExists": {
+      "types": "./dist/src/fileExists.d.ts",
+      "import": "./dist/fileExists.js"
+    },
+    "./isExecutable": {
+      "types": "./dist/src/isExecutable.d.ts",
+      "import": "./dist/isExecutable.js"
+    },
+    "./codeReviewPrompt": {
+      "types": "./dist/src/codeReviewPrompt.d.ts",
+      "import": "./dist/codeReviewPrompt.js"
     }
   },
   "files": [

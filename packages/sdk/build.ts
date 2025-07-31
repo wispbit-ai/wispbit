@@ -94,6 +94,13 @@ async function build() {
         "src/patchParser.ts",
         "src/CodeReviewer.ts",
         "src/CodeReviewerExecutor.ts",
+        // Add missing entry points
+        "src/CodeReviewerViolationValidator.ts",
+        "src/models.ts",
+        "src/hash.ts",
+        "src/fileExists.ts",
+        "src/isExecutable.ts",
+        "src/codeReviewPrompt.ts",
       ],
       bundle: true,
       platform: "node",

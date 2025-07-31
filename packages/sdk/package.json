@@ -1,13 +1,33 @@
 {
   "name": "@wispbit/sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "./codebaseRules": {
+      "types": "./dist/codebaseRules.d.ts",
+      "import": "./dist/codebaseRules.js"
+    },
+    "./openai": {
+      "types": "./dist/openai.d.ts",
+      "import": "./dist/openai.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./tools": {
+      "types": "./dist/tools.d.ts",
+      "import": "./dist/tools.js"
+    },
+    "./patchParser": {
+      "types": "./dist/patchParser.d.ts",
+      "import": "./dist/patchParser.js"
+    },
+    "./CodeReviewer": {
+      "types": "./dist/CodeReviewer.d.ts",
+      "import": "./dist/CodeReviewer.js"
     }
   },
   "files": [

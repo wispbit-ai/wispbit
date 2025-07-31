@@ -56,7 +56,7 @@ function buildTypeScript() {
 
     const tsc = spawn(
       "npx",
-      ["tsc", "--declaration", "--emitDeclarationOnly", "--outDir", "dist"],
+      ["tsc", "--declaration", "--emitDeclarationOnly", "--outDir", "dist", "--declarationMap"],
       {
         stdio: "inherit",
         shell: true,
@@ -84,19 +84,29 @@ async function build() {
     }
     fs.mkdirSync(resolve(__dirname, "dist"), { recursive: true })
 
-    // Build ESM version
+    // Build ESM version with multiple entry points
     await esbuild.build({
-      entryPoints: ["src/index.ts"],
+      entryPoints: [
+        "src/codebaseRules.ts",
+        "src/openai.ts",
+        "src/types.ts",
+        "src/tools.ts",
+        "src/patchParser.ts",
+        "src/CodeReviewer.ts",
+      ],
       bundle: true,
       platform: "node",
       target: "node16",
-      outfile: "dist/index.js",
+      outdir: "dist",
       format: "esm",
       external: [
         // Keep external dependencies external
         ...dependencies,
         // Don't bundle Node.js built-in modules
         ...nodeBuiltins,
+        // Make internal SDK imports external so they resolve to subpath exports
+        "@wispbit/sdk/*",
+        "@wispbit/sdk",
       ],
       minify: false,
       sourcemap: true,

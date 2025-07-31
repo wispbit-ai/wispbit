@@ -6,7 +6,7 @@ import {
   ChatCompletionMessageParam,
   ChatCompletionTool,
   ChatCompletionToolChoiceOption,
-} from "openai/resources/chat"
+} from "openai/resources/index.mjs"
 
 // Define types for OpenAI API responses
 export type ToolCall = {

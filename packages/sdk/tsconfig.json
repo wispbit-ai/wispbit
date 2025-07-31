@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./",
     "baseUrl": "./",
+    "moduleResolution": "bundler",
     "paths": {
       "@wispbit/sdk/*": ["src/*"],
       "@wispbit/sdk": ["src"],

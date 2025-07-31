@@ -1,5 +1,5 @@
 import { format } from "date-fns"
-import { ChatCompletionMessageParam } from "openai/resources/chat"
+import { ChatCompletionMessageParam } from "openai/resources/index.mjs"
 
 import { CodebaseRule, FileChange } from "@wispbit/sdk/types"
 

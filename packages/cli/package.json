@@ -1,11 +1,15 @@
 {
   "name": "@wispbit/cli",
-  "version": "2.0.27",
+  "version": "2.0.28",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
     "wispbit": "./dist/src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wispbit-ai/wispbit.git"
   },
   "scripts": {
     "build": "rm -rf dist && tsx build.ts",

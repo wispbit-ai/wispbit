@@ -1,9 +1,13 @@
 {
   "name": "@wispbit/sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "main": "dist/CodeReviewer.js",
   "types": "dist/CodeReviewer.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wispbit-ai/wispbit.git"
+  },
   "exports": {
     "./codebaseRules": {
       "types": "./dist/src/codebaseRules.d.ts",

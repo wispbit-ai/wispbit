@@ -147,6 +147,9 @@ async function build() {
     // Copy README.md from workspace root to dist directory
     fs.copyFileSync(resolve(__dirname, "../../README.md"), resolve(__dirname, "dist/README.md"))
 
+    // Copy README.md from workspace root to package root for npm publishing
+    fs.copyFileSync(resolve(__dirname, "../../README.md"), resolve(__dirname, "README.md"))
+
     // No need for separate type generation as tscPlugin handles it
     console.log("TypeScript compilation complete.")
   } catch (error) {

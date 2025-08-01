@@ -151,6 +151,12 @@ importers:
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.4.7
+      fs-extra:
+        specifier: ^11.2.0
+        version: 11.3.0
       glob:
         specifier: ^10.3.10
         version: 10.4.5
@@ -160,6 +166,15 @@ importers:
       openai:
         specifier: ^4.0.0
         version: 4.91.1(ws@8.18.1)(zod@3.24.3)
+      p-retry:
+        specifier: ^6.2.1
+        version: 6.2.1
+      pino:
+        specifier: ^9.6.0
+        version: 9.6.0
+      pino-pretty:
+        specifier: ^13.0.0
+        version: 13.0.0
       zod:
         specifier: ^3.24.3
         version: 3.24.3

@@ -1,6 +1,6 @@
 {
   "name": "@wispbit/sdk",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "type": "module",
   "main": "dist/CodeReviewer.js",
   "types": "dist/CodeReviewer.d.ts",
@@ -78,7 +78,12 @@
     "glob": "^10.3.10",
     "minimatch": "^9.0.3",
     "openai": "^4.0.0",
-    "zod": "^3.24.3"
+    "zod": "^3.24.3",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "p-retry": "^6.2.1",
+    "dotenv": "^16.3.1",
+    "fs-extra": "^11.2.0"
   },
   "devDependencies": {
     "vite-tsconfig-paths": "^5.1.4",

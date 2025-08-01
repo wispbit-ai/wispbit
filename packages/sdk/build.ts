@@ -134,6 +134,18 @@ async function build() {
       devDependencies: undefined,
       scripts: undefined,
       private: false,
+      // Fix paths since this package.json will be inside the dist directory
+      main: packageJson.main?.replace(/^dist\//, "") || "CodeReviewer.js",
+      types: packageJson.types?.replace(/^dist\//, "") || "CodeReviewer.d.ts",
+      exports: Object.fromEntries(
+        Object.entries(packageJson.exports || {}).map(([key, value]: [string, any]) => [
+          key,
+          {
+            types: value.types?.replace(/^\.\/dist\//, "./"),
+            import: value.import?.replace(/^\.\/dist\//, "./"),
+          },
+        ])
+      ),
     }
     fs.writeFileSync(
       resolve(__dirname, "dist/package.json"),

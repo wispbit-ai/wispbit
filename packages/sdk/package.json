@@ -1,6 +1,6 @@
 {
   "name": "@wispbit/sdk",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "type": "module",
   "main": "dist/CodeReviewer.js",
   "types": "dist/CodeReviewer.d.ts",

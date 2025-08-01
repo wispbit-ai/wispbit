@@ -10,9 +10,16 @@ import * as esbuild from "esbuild"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Read package.json to get dependencies
-const packageJson = JSON.parse(fs.readFileSync(resolve(__dirname, "package.json"), "utf8"))
-const dependencies = Object.keys(packageJson.dependencies || {})
+// Read package.json from both root and local to get dependencies
+const rootPackageJson = JSON.parse(
+  fs.readFileSync(resolve(__dirname, "../../package.json"), "utf8")
+)
+const localPackageJson = JSON.parse(fs.readFileSync(resolve(__dirname, "package.json"), "utf8"))
+
+// Merge dependencies from both root and local package.json
+const rootDependencies = Object.keys(rootPackageJson.dependencies || {})
+const localDependencies = Object.keys(localPackageJson.dependencies || {})
+const dependencies = [...new Set([...rootDependencies, ...localDependencies])]
 
 // Node.js built-in modules that should always be external
 const nodeBuiltins = [
@@ -130,15 +137,15 @@ async function build() {
 
     // Copy package.json to dist directory (optional for publishing)
     const distPackageJson = {
-      ...packageJson,
+      ...localPackageJson,
       devDependencies: undefined,
       scripts: undefined,
       private: false,
       // Fix paths since this package.json will be inside the dist directory
-      main: packageJson.main?.replace(/^dist\//, "") || "CodeReviewer.js",
-      types: packageJson.types?.replace(/^dist\//, "") || "CodeReviewer.d.ts",
+      main: localPackageJson.main?.replace(/^dist\//, "") || "CodeReviewer.js",
+      types: localPackageJson.types?.replace(/^dist\//, "") || "CodeReviewer.d.ts",
       exports: Object.fromEntries(
-        Object.entries(packageJson.exports || {}).map(([key, value]: [string, any]) => [
+        Object.entries(localPackageJson.exports || {}).map(([key, value]: [string, any]) => [
           key,
           {
             types: value.types?.replace(/^\.\/dist\//, "./"),

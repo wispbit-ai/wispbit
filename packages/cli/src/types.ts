@@ -3,6 +3,7 @@ import { CodebaseRule, FileChange, LineReference } from "@wispbit/sdk/types"
 export interface ViolationDetail {
   description: string
   line: LineReference
+  optional: boolean
 }
 
 export interface FileWithStatus {

@@ -62,6 +62,7 @@ describe(
           end: lineEnd,
           side,
         },
+        optional: false,
       }
     }
 

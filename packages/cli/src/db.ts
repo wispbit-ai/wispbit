@@ -40,6 +40,7 @@ interface DatabaseSchema {
     lineNumberStart: number
     lineNumberEnd: number
     lineNumberSide: string
+    optional: boolean
   }>
 }
 
@@ -151,6 +152,7 @@ export async function getViolationsForFile(
       side: violation.lineNumberSide as "right" | "left",
     },
     ruleId: violation.rule_id,
+    optional: violation.optional ?? false,
   }))
 }
 
@@ -206,6 +208,7 @@ export async function saveFileReview(
       lineNumberStart: violation.line.start,
       lineNumberEnd: violation.line.end,
       lineNumberSide: violation.line.side,
+      optional: violation.optional,
     })
   }
 

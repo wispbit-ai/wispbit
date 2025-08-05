@@ -48,6 +48,9 @@ export interface Violation {
   /** Reasoning for why the violation was validated */
   validationReasoning?: string
 
+  /** Whether the violation is optional */
+  optional: boolean
+
   /** Whether the violation was read from the cache */
   isCached?: boolean
 }

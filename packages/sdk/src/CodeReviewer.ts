@@ -294,6 +294,7 @@ export class CodeReviewer {
               side: complaintParams.line_side,
             },
             rule: rules.find((r) => r.id === complaintParams.rule_id)!,
+            optional: complaintParams.optional,
           }
 
           violationsToValidate.push(violation)

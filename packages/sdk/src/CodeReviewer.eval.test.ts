@@ -111,6 +111,7 @@ describe(
       const result = await codeReviewer.codeReviewFile(files[0], [rule])
 
       expect(result.violations.length).toBe(1)
+      expect(result.violations.every((v) => v.optional === false)).toBe(true)
     })
 
     it("should detect non-compliant GraphQL field removals", async () => {
@@ -166,6 +167,7 @@ describe(
       const result = await codeReviewer.codeReviewFile(files[0], [rule])
 
       expect(result.violations.length).toBe(1)
+      expect(result.violations.every((v) => v.optional === false)).toBe(true)
 
       const result2 = await codeReviewer.codeReviewFile(files[1], [rule])
 
@@ -244,6 +246,7 @@ describe(
       const result = await codeReviewer.codeReviewFile(files[0], [rule])
 
       expect(result.violations.length).toBe(1)
+      expect(result.violations.every((v) => v.optional === false)).toBe(true)
     })
 
     // this test was added because the code reviewer would comment on context lines that were not part of the original changes
@@ -325,6 +328,7 @@ class User:
       const result = await codeReviewer.codeReviewFile(files[0], [rule])
 
       expect(result.violations.length).toBe(1)
+      expect(result.violations.every((v) => v.optional === false)).toBe(true)
     })
 
     // this test was added to test the code reviewer's ability to use a rule that requires multiple files to be checked
@@ -410,6 +414,7 @@ models:
       const result = await codeReviewer.codeReviewFile(files[0], [rule])
 
       expect(result.violations.length).toBe(1)
+      expect(result.violations.every((v) => v.optional === false)).toBe(true)
     })
 
     // this test was added because the code reviewer would comment on changes that were removed- this was a correct interpretation (violation existed) but not correct in the fact that the removal "fixed" the violation
@@ -492,6 +497,48 @@ def process_users():
       const result = await codeReviewer.codeReviewFile(files[0], [rule])
 
       expect(result.violations.length).toBe(1)
+      expect(result.violations.every((v) => v.optional === false)).toBe(true)
+    })
+
+    it("should detect optional repo.models imports", async () => {
+      const rule = createRule(
+        "Make sure models are imported from repo.models.{model_name} (optional). Bad: from repo.models import User, Company. Good: from repo.models.user import User, from repo.models.company import Company",
+        ["*.py"]
+      )
+
+      const baseContent = `from repo.models import User, Company
+from repo.utils import helper_function
+
+def process_users():
+    user = User()
+    company = Company()
+    return helper_function(user, company)
+`
+
+      createTestFile("services/user_service.py", baseContent)
+
+      const files: FileChange[] = [
+        createFileChange(
+          "services/user_service.py",
+          "modified",
+          `@@ -1,5 +1,4 @@
+-from repo.models.user import User
+-from repo.models.company import Company
++from repo.models import User, Company
+ from repo.utils import helper_function
+ 
+ def process_users():`,
+          1,
+          2
+        ),
+      ]
+
+      const codeReviewer = createCodeReviewer()
+
+      const result = await codeReviewer.codeReviewFile(files[0], [rule])
+
+      expect(result.violations.length).toBe(1)
+      expect(result.violations.every((v) => v.optional === true)).toBe(true)
     })
   }
 )

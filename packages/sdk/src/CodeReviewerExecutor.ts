@@ -31,6 +31,8 @@ export interface ComplaintParameters {
   description: string
   /** The rule that was violated */
   rule_id: string
+  /** Whether the violation is optional */
+  optional: boolean
 }
 
 /**
@@ -407,8 +409,12 @@ const complaintTool: ChatCompletionTool = {
           description:
             "The name of the rule that is being violated. Use the `id` of the rule to report the violation.",
         },
+        optional: {
+          type: "boolean",
+          description: "Whether the violation is optional.",
+        },
       },
-      required: ["file_path", "line_start", "line_end", "line_side", "description", "rule"],
+      required: ["file_path", "line_start", "line_end", "line_side", "description", "rule_id"],
     },
   },
 }

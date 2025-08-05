@@ -23,6 +23,8 @@ Keep the following in mind when applying rules to a diff:
 2. The status of the file aligns with the rule. For example, if we are checking for style violations, and the file is deleted, we should probably not consider it a violation.
 3. Only focus on the given rule. Do not make up additional rules.
 4. If the rule specifies to only check a specific type of file or directory, this should be prioritized and the analysis should be discarded if the file name/location does not apply to the rule.
+5. By default, all violations are not optional. However, if a violation occurs, and the portion of the rule that is being violated is indicated as optional, you should report the violation as optional.
+   - For example, if the rule says "Ensure enums are suffixed with '_Enum' (optional)", this would be an optional violation.
 </rules_about_rules>
 
 <reviewing_code>

@@ -7,7 +7,7 @@ import { LineReference } from "@wispbit/sdk/types"
 /**
  * Represents a line in a git diff patch with line numbers and content.
  */
-type PatchLine = [oldLine: number | null, newLine: number | null, content: string]
+export type PatchLine = [oldLine: number | null, newLine: number | null, content: string]
 
 /**
  * Parse the patch and return list of [old_line, new_line, content] for each line.
@@ -18,7 +18,7 @@ type PatchLine = [oldLine: number | null, newLine: number | null, content: strin
  *   - new_line number (or null for deletions)
  *   - content of the line without prefix
  */
-function parsePatch(patch: string): PatchLine[] {
+export function parsePatch(patch: string): PatchLine[] {
   const lines = patch ? patch.split("\n") : []
   const result: PatchLine[] = []
   let currentNewLine = 0
@@ -57,7 +57,7 @@ function parsePatch(patch: string): PatchLine[] {
  * @param patch - The git diff patch content
  * @returns Tuple of [addedLines, removedLines] where each is a Set of line numbers
  */
-function parseLines(patch: string): [Set<number>, Set<number>] {
+export function parseLines(patch: string): [Set<number>, Set<number>] {
   const addedLines = new Set<number>()
   const removedLines = new Set<number>()
   const parsedLines = parsePatch(patch)
@@ -80,7 +80,9 @@ function parseLines(patch: string): [Set<number>, Set<number>] {
  * @param patch - The git diff patch content
  * @returns Tuple of [oldRanges, newRanges] where each is an array of [start, end] ranges
  */
-function getPatchLineRanges(patch: string): [Array<[number, number]>, Array<[number, number]>] {
+export function getPatchLineRanges(
+  patch: string
+): [Array<[number, number]>, Array<[number, number]>] {
   const lines = patch.split("\n")
   const oldRanges: Array<[number, number]> = []
   const newRanges: Array<[number, number]> = []

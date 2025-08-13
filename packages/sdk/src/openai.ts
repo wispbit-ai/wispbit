@@ -140,17 +140,28 @@ export function isToolResponse(completion: OpenAICompletion): boolean {
  * @param completion - OpenAI API completion response
  * @returns boolean indicating if the response is a regular message
  */
-export function isMessageResponse(completion: OpenAICompletion): boolean {
-  return !isToolResponse(completion) && !isStructuredResponse(completion)
+export function isMessageResponse(
+  completion: OpenAICompletion,
+  wasStructuredRequest = false
+): boolean {
+  return !isToolResponse(completion) && !isStructuredResponse(completion, wasStructuredRequest)
 }
 
 /**
  * Check if an OpenAI response is a structured response
  *
  * @param completion - OpenAI API completion response
+ * @param wasStructuredRequest - Whether the request used structured output format
  * @returns boolean indicating if the response is structured
  */
-export function isStructuredResponse(completion: OpenAICompletion): boolean {
+export function isStructuredResponse(
+  completion: OpenAICompletion,
+  wasStructuredRequest = false
+): boolean {
+  // If we explicitly requested structured output, treat it as structured
+  if (wasStructuredRequest) return true
+
+  // Fallback: try to parse JSON from content (for backward compatibility)
   try {
     const content = completion.choices[0]?.message.content
     if (!content) return false
@@ -218,11 +229,64 @@ export function isStructuredResponseType(response: AIResponse): response is Stru
   return response.type === "structured"
 }
 
+// Types for structured outputs following OpenRouter's specification
+export type ResponseFormat = {
+  type: "json_schema"
+  json_schema: {
+    name: string
+    strict?: boolean
+    schema: Record<string, any>
+  }
+}
+
+/**
+ * Example usage of structured outputs:
+ *
+ * const responseFormat = {
+ *   type: "json_schema" as const,
+ *   json_schema: {
+ *     name: "weather",
+ *     strict: true,
+ *     schema: {
+ *       type: "object",
+ *       properties: {
+ *         location: {
+ *           type: "string",
+ *           description: "City or location name"
+ *         },
+ *         temperature: {
+ *           type: "number",
+ *           description: "Temperature in Celsius"
+ *         },
+ *         conditions: {
+ *           type: "string",
+ *           description: "Weather conditions description"
+ *         }
+ *       },
+ *       required: ["location", "temperature", "conditions"],
+ *       additionalProperties: false
+ *     }
+ *   }
+ * }
+ *
+ * const response = await getOpenAICompletion(openAI, {
+ *   messages: [{ role: "user", content: "What's the weather like in London?" }],
+ *   tools: [],
+ *   model: "gpt-4o",
+ *   responseFormat
+ * })
+ *
+ * if (isStructuredResponseType(response)) {
+ *   console.log(response.content) // { location: "London", temperature: 18, conditions: "Partly cloudy" }
+ * }
+ */
+
 /**
  * Call OpenAI API with messages.
  *
  * @param service - Service instance with OpenAI client
  * @param messages - Array of message objects
+ * @param responseFormat - Optional structured output format using OpenRouter's JSON Schema specification
  * @returns Either a MessageResponse, ToolResponse, or StructuredResponse based on the API response
  */
 export const getOpenAICompletion = async function (
@@ -235,6 +299,7 @@ export const getOpenAICompletion = async function (
     temperature,
     maxTokens,
     reasoningMaxTokens,
+    responseFormat,
   }: {
     messages: ChatCompletionMessageParam[]
     tools: ChatCompletionTool[]
@@ -243,6 +308,7 @@ export const getOpenAICompletion = async function (
     temperature?: number
     maxTokens?: number
     reasoningMaxTokens?: number
+    responseFormat?: ResponseFormat
   }
 ): Promise<AIResponse> {
   let completion: OpenAICompletion
@@ -262,6 +328,7 @@ export const getOpenAICompletion = async function (
       ...(reasoningMaxTokens
         ? { reasoning: { enabled: true, max_tokens: reasoningMaxTokens } }
         : {}),
+      ...(responseFormat ? { response_format: responseFormat } : {}),
     })
 
     // catch and re-throw errors because openrouter returns a different syntax
@@ -280,6 +347,8 @@ export const getOpenAICompletion = async function (
     cost: new Big(completion.usage?.cost ?? 0).toString(),
   }
 
+  const wasStructuredRequest = !!responseFormat
+
   // Return a different response type based on the content
   if (isToolResponse(completion)) {
     return {
@@ -287,7 +356,7 @@ export const getOpenAICompletion = async function (
       toolCalls: getToolCalls(completion),
       usage,
     }
-  } else if (isStructuredResponse(completion)) {
+  } else if (isStructuredResponse(completion, wasStructuredRequest)) {
     const content = getStructuredContent(completion)
     if (!content) throw new Error("Failed to parse structured content")
     return {
@@ -295,7 +364,7 @@ export const getOpenAICompletion = async function (
       content,
       usage,
     }
-  } else if (isMessageResponse(completion)) {
+  } else if (isMessageResponse(completion, wasStructuredRequest)) {
     return {
       type: "message",
       content: getMessageContent(completion),

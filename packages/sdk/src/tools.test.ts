@@ -27,17 +27,16 @@ describe("Tools", () => {
     const dirPath = path.dirname(fullPath)
     fs.mkdirSync(dirPath, { recursive: true })
     fs.writeFileSync(fullPath, content)
-    return fullPath
   }
 
   describe("read_file", () => {
     it("should read the specified range of lines from a file", async () => {
       const fileContent = "Line 1\nLine 2\nLine 3\nLine 4"
-      const filePath = writeTestFile("test.txt", fileContent)
+      writeTestFile("test.txt", fileContent)
 
       const result = await readFile(
         {
-          target_file: filePath,
+          target_file: "test.txt",
           start_line_one_indexed: 2,
           end_line_one_indexed_inclusive: 3,
           should_read_entire_file: false,
@@ -92,7 +91,7 @@ describe("Tools", () => {
 
       const result = await listDir(
         {
-          relative_workspace_path: dirPath,
+          relative_workspace_path: "testDir",
         },
         testDir
       )

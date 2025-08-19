@@ -91,7 +91,7 @@ export async function readFile(
     should_read_entire_file,
   } = parameters
 
-  const absolutePath = path.resolve(cwd, target_file)
+  const absolutePath = path.join(cwd, target_file)
 
   if (!(await fileExists(absolutePath))) {
     return {
@@ -148,7 +148,7 @@ export async function listDir(
 ): Promise<ListDirResult | { error: string }> {
   const { relative_workspace_path } = parameters
 
-  const absolutePath = path.resolve(cwd, relative_workspace_path)
+  const absolutePath = path.join(cwd, relative_workspace_path)
 
   if (!(await fileExists(absolutePath))) {
     return {
@@ -326,7 +326,7 @@ async function executeGrepSearch(
         relativePath = path.relative(cwd, file)
 
         // Check if the relative file exists with cwd
-        const fullPath = path.resolve(cwd, relativePath)
+        const fullPath = path.join(cwd, relativePath)
         try {
           if (fs.existsSync(fullPath)) {
             matches.push({
@@ -417,7 +417,7 @@ export async function globSearch(
   const { pattern, path: searchPath } = parameters
 
   // Check if the target directory exists and is a directory
-  const targetDir = searchPath ? path.resolve(cwd, searchPath) : cwd
+  const targetDir = searchPath ? path.join(cwd, searchPath) : cwd
 
   if (!(await fileExists(targetDir))) {
     return {

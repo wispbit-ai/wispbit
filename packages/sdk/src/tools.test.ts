@@ -41,7 +41,7 @@ describe("Tools", () => {
         {
           target_file: "test.txt",
           start_line_one_indexed: 2,
-          end_line_one_indexed_inclusive: 3,
+          end_line_one_indexed: 3,
           should_read_entire_file: false,
         },
         testDir
@@ -49,6 +49,27 @@ describe("Tools", () => {
 
       if ("content" in result) {
         expect(result.content).toBe("[Lines 1-1 omitted]\nLine 2\nLine 3\n[Lines 4-4 omitted]")
+      } else {
+        throw new Error("Expected content in result")
+      }
+    })
+
+    it("should read the first line only with range 1,1", async () => {
+      const fileContent = "Line 1\nLine 2\nLine 3\nLine 4"
+      writeTestFile("test.txt", fileContent)
+
+      const result = await readFile(
+        {
+          target_file: "test.txt",
+          start_line_one_indexed: 1,
+          end_line_one_indexed: 1,
+          should_read_entire_file: false,
+        },
+        testDir
+      )
+
+      if ("content" in result) {
+        expect(result.content).toBe("Line 1\n[Lines 2-4 omitted]")
       } else {
         throw new Error("Expected content in result")
       }

@@ -1,3 +1,4 @@
+import { execSync } from "child_process"
 import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
@@ -59,9 +60,11 @@ describe(
     }
 
     function createCodeReviewer(additionalFiles: FileChange[] = []): CodeReviewer {
+      const ripGrepPath = execSync("which rg").toString().trim()
       return new CodeReviewer(
         {
           cwd: testDir,
+          ripGrepPath,
           debug: true,
         },
         undefined,

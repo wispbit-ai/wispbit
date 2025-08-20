@@ -44,7 +44,7 @@ export interface ReadFileParameters {
   /** 1-indexed line number to start reading from */
   start_line_one_indexed: number
   /** 1-indexed line number to end reading at (inclusive) */
-  end_line_one_indexed_inclusive: number
+  end_line_one_indexed: number
   /** Whether to read the entire file */
   should_read_entire_file: boolean
 }
@@ -263,7 +263,7 @@ export const readFileTool: ChatCompletionTool = {
   function: {
     name: "read_file",
     description:
-      "Read the contents of a file. the output of this tool call will be the 1-indexed file contents from start_line_one_indexed to end_line_one_indexed_inclusive, together with a summary of the lines outside start_line_one_indexed and end_line_one_indexed_inclusive.\\nNote that this call can view at most 250 lines at a time.\\n\\nWhen using this tool to gather information, it's your responsibility to ensure you have the COMPLETE context. Specifically, each time you call this command you should:\\n1) Assess if the contents you viewed are sufficient to proceed with your task.\\n2) Take note of where there are lines not shown.\\n3) If the file contents you have viewed are insufficient, and you suspect they may be in lines not shown, proactively call the tool again to view those lines.\\n4) When in doubt, call this tool again to gather more information. Remember that partial file views may miss critical dependencies, imports, or functionality.\\n\\nIn some cases, if reading a range of lines is not enough, you may choose to read the entire file.\\nReading entire files is often wasteful and slow, especially for large files (i.e. more than a few hundred lines). So you should use this option sparingly.\\nReading the entire file is not allowed in most cases. If the file was added during the PR review, it may not exist when you run this tool. If you aren't sure about the path of the file, use list_dir tool to figure it out first.",
+      "Read the contents of a file. the output of this tool call will be the 1-indexed file contents from start_line_one_indexed to end_line_one_indexed, together with a summary of the lines outside start_line_one_indexed and end_line_one_indexed.\\nNote that this call can view at most 250 lines at a time.\\n\\nWhen using this tool to gather information, it's your responsibility to ensure you have the COMPLETE context. Specifically, each time you call this command you should:\\n1) Assess if the contents you viewed are sufficient to proceed with your task.\\n2) Take note of where there are lines not shown.\\n3) If the file contents you have viewed are insufficient, and you suspect they may be in lines not shown, proactively call the tool again to view those lines.\\n4) When in doubt, call this tool again to gather more information. Remember that partial file views may miss critical dependencies, imports, or functionality.\\n\\nIn some cases, if reading a range of lines is not enough, you may choose to read the entire file.\\nReading entire files is often wasteful and slow, especially for large files (i.e. more than a few hundred lines). So you should use this option sparingly.\\nReading the entire file is not allowed in most cases. If the file was added during the PR review, it may not exist when you run this tool. If you aren't sure about the path of the file, use list_dir tool to figure it out first.",
     parameters: {
       type: "object",
       properties: {
@@ -275,7 +275,7 @@ export const readFileTool: ChatCompletionTool = {
           type: "integer",
           description: "The one-indexed line number to start reading from (inclusive).",
         },
-        end_line_one_indexed_inclusive: {
+        end_line_one_indexed: {
           type: "integer",
           description: "The one-indexed line number to end reading at (inclusive).",
         },
@@ -288,7 +288,7 @@ export const readFileTool: ChatCompletionTool = {
         "target_file",
         "should_read_entire_file",
         "start_line_one_indexed",
-        "end_line_one_indexed_inclusive",
+        "end_line_one_indexed",
       ],
     },
   },

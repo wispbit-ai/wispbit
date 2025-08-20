@@ -115,12 +115,8 @@ export async function readFile(
   parameters: ReadFileParameters,
   cwd: string
 ): Promise<ReadFileToolResult> {
-  const {
-    target_file,
-    start_line_one_indexed,
-    end_line_one_indexed_inclusive,
-    should_read_entire_file,
-  } = parameters
+  const { target_file, start_line_one_indexed, end_line_one_indexed, should_read_entire_file } =
+    parameters
 
   // Validate path
   const absolutePath = safePath(cwd, target_file)
@@ -147,24 +143,20 @@ export async function readFile(
     }
   }
 
-  // Make sure the range is valid
+  // Make sure the range is valid - check if parameters are provided and are valid numbers
   if (
-    !Number.isInteger(start_line_one_indexed) ||
-    !Number.isInteger(end_line_one_indexed_inclusive) ||
-    start_line_one_indexed < 1 ||
-    end_line_one_indexed_inclusive < start_line_one_indexed
+    Number.isNaN(Number(start_line_one_indexed)) ||
+    Number.isNaN(Number(end_line_one_indexed)) ||
+    Number(start_line_one_indexed) < 1 ||
+    Number(end_line_one_indexed) < Number(start_line_one_indexed)
   ) {
     return {
-      error: "Invalid line range",
+      error: `Invalid line range: start=${start_line_one_indexed}, end=${end_line_one_indexed}. You must provide a valid line range.`,
     }
   }
 
   try {
-    const content = readFileRange(
-      absolutePath,
-      start_line_one_indexed,
-      end_line_one_indexed_inclusive
-    )
+    const content = readFileRange(absolutePath, start_line_one_indexed, end_line_one_indexed)
     return { content }
   } catch (error: any) {
     return {

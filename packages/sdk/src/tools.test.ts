@@ -1,3 +1,4 @@
+import { execSync } from "child_process"
 import os from "os"
 import path from "path"
 
@@ -5,6 +6,8 @@ import fs from "fs-extra"
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 
 import { grepSearch, listDir, readFile, globSearch } from "@wispbit/sdk/tools"
+
+const ripGrepPath = execSync("which rg").toString().trim()
 
 // Test suite for tools
 describe("Tools", () => {
@@ -63,7 +66,7 @@ describe("Tools", () => {
           include_pattern: "*.ts",
           case_sensitive: true,
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -87,7 +90,7 @@ describe("Tools", () => {
           query: "const",
           case_sensitive: false,
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -113,7 +116,7 @@ describe("Tools", () => {
           query: "const",
           include_pattern: "*.ts",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -135,13 +138,13 @@ describe("Tools", () => {
           query: "const",
           exclude_pattern: "*test*",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
       if ("matches" in result) {
         expect(result.matches).toHaveLength(2)
-        expect(result.matches.map((m) => m.file)).toEqual(["important.ts", "spec.ts"])
+        expect(result.matches.map((m) => m.file)).toEqual(["spec.ts", "important.ts"])
       } else {
         throw new Error("Expected matches in result")
       }
@@ -154,7 +157,7 @@ describe("Tools", () => {
         {
           query: "nonexistent",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -172,7 +175,7 @@ describe("Tools", () => {
         {
           query: "function\\s+\\w+\\(\\)",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -191,7 +194,7 @@ describe("Tools", () => {
         {
           query: "\\$\\d+\\.\\d+",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -210,7 +213,7 @@ describe("Tools", () => {
         {
           query: '"Hello World"',
         },
-        "rg",
+        "/opt/homebrew/bin/rg",
         testDir
       )
 
@@ -233,7 +236,7 @@ describe("Tools", () => {
           query: "file",
           include_pattern: "*.{ts,js}",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -254,7 +257,7 @@ describe("Tools", () => {
         {
           query: "const",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 
@@ -287,7 +290,7 @@ describe("Tools", () => {
         {
           query: "",
         },
-        "rg",
+        ripGrepPath,
         testDir
       )
 

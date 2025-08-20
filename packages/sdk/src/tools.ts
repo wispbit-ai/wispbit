@@ -318,7 +318,14 @@ async function executeGrepSearch(
   cwd: string = "."
 ): Promise<GrepSearchMatch[]> {
   // Build arguments array instead of shell command string to prevent injection
-  const args: string[] = ["--line-number"]
+  const args: string[] = [
+    "--no-config",
+    "--line-number",
+    "--color=never",
+    "--max-columns=300",
+    "--max-filesize=1M",
+    "--max-count=50",
+  ]
 
   // Add case sensitivity flag
   if (!caseSensitive) {
@@ -335,9 +342,6 @@ async function executeGrepSearch(
     args.push("-g", `!${excludePattern}`)
   }
 
-  // Make sure we only get 50 results max to prevent overflows
-  args.push("--max-count", "50")
-
   // Add the search pattern
   args.push(pattern)
 
@@ -349,7 +353,12 @@ async function executeGrepSearch(
     const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
       const child = spawn(ripGrepPath, args, {
         cwd,
+        shell: false,
         stdio: ["ignore", "pipe", "pipe"],
+        env: {
+          LANG: "C",
+          RIPGREP_CONFIG_PATH: "",
+        },
       })
 
       let stdout = ""

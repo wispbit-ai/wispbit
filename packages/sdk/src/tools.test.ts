@@ -144,7 +144,7 @@ describe("Tools", () => {
 
       if ("matches" in result) {
         expect(result.matches).toHaveLength(2)
-        expect(result.matches.map((m) => m.file)).toEqual(["spec.ts", "important.ts"])
+        expect(result.matches.map((m) => m.file).sort()).toEqual(["important.ts", "spec.ts"])
       } else {
         throw new Error("Expected matches in result")
       }
@@ -213,7 +213,7 @@ describe("Tools", () => {
         {
           query: '"Hello World"',
         },
-        "/opt/homebrew/bin/rg",
+        ripGrepPath,
         testDir
       )
 

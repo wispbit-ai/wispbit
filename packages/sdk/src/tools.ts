@@ -1,7 +1,6 @@
-import { exec } from "child_process"
+import { spawn } from "child_process"
 import fs from "fs"
 import path from "path"
-import { promisify } from "util"
 
 import { glob } from "glob"
 
@@ -28,7 +27,39 @@ interface ExecError extends Error {
   signal?: string
 }
 
-const execPromise = promisify(exec)
+/**
+ * Validates that a user-provided path stays within the allowed base directory.
+ *
+ * @param baseDir - The base directory that should contain the resolved path
+ * @param userPath - The user-provided path
+ * @returns The safe absolute path if valid, null if not
+ */
+function safePath(baseDir: string, userPath: string): string | null {
+  try {
+    // Resolve both paths to absolute paths
+    const resolvedBase = path.resolve(baseDir)
+    const resolvedPath = path.resolve(baseDir, userPath)
+
+    // Normalize paths to handle different separators consistently
+    const normalizedBase = path.normalize(resolvedBase)
+    const normalizedPath = path.normalize(resolvedPath)
+
+    // Check if the resolved path is within the base directory
+    // Must either be exactly the base directory or start with base + separator
+    if (normalizedPath === normalizedBase) {
+      return normalizedPath
+    }
+
+    if (normalizedPath.startsWith(normalizedBase + path.sep)) {
+      return normalizedPath
+    }
+
+    return null
+  } catch (error) {
+    // Path resolution failed
+    return null
+  }
+}
 
 /**
  * Read a range of lines from a file.
@@ -91,7 +122,13 @@ export async function readFile(
     should_read_entire_file,
   } = parameters
 
-  const absolutePath = path.join(cwd, target_file)
+  // Validate path
+  const absolutePath = safePath(cwd, target_file)
+  if (!absolutePath) {
+    return {
+      error: `Invalid file path: '${target_file}'`,
+    }
+  }
 
   if (!(await fileExists(absolutePath))) {
     return {
@@ -148,7 +185,13 @@ export async function listDir(
 ): Promise<ListDirResult | { error: string }> {
   const { relative_workspace_path } = parameters
 
-  const absolutePath = path.join(cwd, relative_workspace_path)
+  // Validate path
+  const absolutePath = safePath(cwd, relative_workspace_path)
+  if (!absolutePath) {
+    return {
+      error: `Invalid directory path: '${relative_workspace_path}'`,
+    }
+  }
 
   if (!(await fileExists(absolutePath))) {
     return {
@@ -274,45 +317,82 @@ async function executeGrepSearch(
   caseSensitive: boolean = true,
   cwd: string = "."
 ): Promise<GrepSearchMatch[]> {
-  let command = `${ripGrepPath} --line-number `
+  // Build arguments array instead of shell command string to prevent injection
+  const args: string[] = ["--line-number"]
 
   // Add case sensitivity flag
   if (!caseSensitive) {
-    command += "-i "
+    args.push("-i")
   }
 
   // Add include pattern if provided
   if (includePattern) {
-    command += `-g "${includePattern}" `
+    args.push("-g", includePattern)
   }
 
   // Add exclude pattern if provided
   if (excludePattern) {
-    command += `-g "!${excludePattern}" `
+    args.push("-g", `!${excludePattern}`)
   }
 
-  // Add the search pattern
-  command += `"${pattern.replace(/"/g, '\\"')}" `
-
   // Make sure we only get 50 results max to prevent overflows
-  command += "--max-count 50 "
+  args.push("--max-count", "50")
 
-  // add cwd to the command
-  command += cwd
+  // Add the search pattern
+  args.push(pattern)
+
+  // Add the search directory
+  args.push(cwd)
 
   try {
-    // Add a timeout of 30 seconds to prevent hanging
-    const { stdout } = await execPromise(command, {
-      cwd,
-      timeout: 30000,
+    // Use spawn instead of exec to prevent command injection
+    const result = await new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+      const child = spawn(ripGrepPath, args, {
+        cwd,
+        stdio: ["ignore", "pipe", "pipe"],
+      })
+
+      let stdout = ""
+      let stderr = ""
+
+      child.stdout?.on("data", (data) => {
+        stdout += data.toString()
+      })
+
+      child.stderr?.on("data", (data) => {
+        stderr += data.toString()
+      })
+
+      // Add timeout of 30 seconds to prevent hanging
+      const timeout = setTimeout(() => {
+        child.kill("SIGTERM")
+        reject(new Error("rg search operation timed out"))
+      }, 30000)
+
+      child.on("close", (code) => {
+        clearTimeout(timeout)
+        // ripgrep returns exit code 1 when no matches found, which is normal
+        if (code === 1 && !stderr) {
+          resolve({ stdout: "", stderr: "" })
+        } else if (code === 0 || (code === 1 && !stderr)) {
+          resolve({ stdout, stderr })
+        } else {
+          reject(new Error(`ripgrep exited with code ${code}: ${stderr}`))
+        }
+      })
+
+      child.on("error", (error) => {
+        clearTimeout(timeout)
+        reject(error)
+      })
     })
 
-    if (!stdout.trim()) {
+    if (!result.stdout.trim()) {
       return []
     }
 
     // Parse the output into matches
-    const lines = stdout.trim().split("\n")
+    const lines = result.stdout.trim().split("\n")
     const matches: GrepSearchMatch[] = []
 
     for (const line of lines) {
@@ -416,8 +496,19 @@ export async function globSearch(
 ): Promise<GlobSearchResult | { error: string }> {
   const { pattern, path: searchPath } = parameters
 
-  // Check if the target directory exists and is a directory
-  const targetDir = searchPath ? path.join(cwd, searchPath) : cwd
+  // Validate path to prevent directory traversal if searchPath is provided
+  let targetDir: string
+  if (searchPath) {
+    const safeDirPath = safePath(cwd, searchPath)
+    if (!safeDirPath) {
+      return {
+        error: `Invalid search path: '${searchPath}'`,
+      }
+    }
+    targetDir = safeDirPath
+  } else {
+    targetDir = cwd
+  }
 
   if (!(await fileExists(targetDir))) {
     return {
@@ -473,7 +564,20 @@ async function executeGlobSearch(
   cwd: string
 ): Promise<string[]> {
   try {
-    const cwdWithDir = dir ? path.join(cwd, dir) : cwd
+    // Validate the directory path if provided
+    let cwdWithDir: string
+    if (dir) {
+      const safeDirPath = safePath(cwd, dir)
+      if (!safeDirPath) {
+        throw new Error(
+          `Invalid directory path: potential directory traversal detected in '${dir}'`
+        )
+      }
+      cwdWithDir = safeDirPath
+    } else {
+      cwdWithDir = cwd
+    }
+
     // Use the glob library to find matching files
     const matchedFiles = await glob(pattern, {
       cwd: cwdWithDir,

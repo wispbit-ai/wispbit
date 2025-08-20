@@ -77,6 +77,227 @@ describe("Tools", () => {
         throw new Error("Expected matches in result")
       }
     })
+
+    it("should handle case insensitive search", async () => {
+      const fileContent = "CONST A = 1;\nconst b = 2;\nConst c = 3;"
+      writeTestFile("test.ts", fileContent)
+
+      const result = await grepSearch(
+        {
+          query: "const",
+          case_sensitive: false,
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toHaveLength(3)
+        expect(result.matches).toEqual([
+          { file: "test.ts", line_number: 1, content: "CONST A = 1;" },
+          { file: "test.ts", line_number: 2, content: "const b = 2;" },
+          { file: "test.ts", line_number: 3, content: "Const c = 3;" },
+        ])
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should respect include patterns", async () => {
+      writeTestFile("test.ts", "const typescript = true;")
+      writeTestFile("test.js", "const javascript = true;")
+      writeTestFile("test.py", "python = True")
+
+      const result = await grepSearch(
+        {
+          query: "const",
+          include_pattern: "*.ts",
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toHaveLength(1)
+        expect(result.matches[0].file).toBe("test.ts")
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should respect exclude patterns", async () => {
+      writeTestFile("important.ts", "const important = true;")
+      writeTestFile("test.ts", "const test = true;")
+      writeTestFile("spec.ts", "const spec = true;")
+
+      const result = await grepSearch(
+        {
+          query: "const",
+          exclude_pattern: "*test*",
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toHaveLength(2)
+        expect(result.matches.map((m) => m.file)).toEqual(["important.ts", "spec.ts"])
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should return empty array when no matches found", async () => {
+      writeTestFile("test.ts", "const a = 1;\nconst b = 2;")
+
+      const result = await grepSearch(
+        {
+          query: "nonexistent",
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toEqual([])
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should handle regex patterns safely", async () => {
+      writeTestFile("test.ts", "function test() { return 'hello'; }")
+
+      const result = await grepSearch(
+        {
+          query: "function\\s+\\w+\\(\\)",
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toHaveLength(1)
+        expect(result.matches[0].content).toBe("function test() { return 'hello'; }")
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should handle special characters in search pattern", async () => {
+      writeTestFile("test.ts", "const price = '$100.50';")
+
+      const result = await grepSearch(
+        {
+          query: "\\$\\d+\\.\\d+",
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toHaveLength(1)
+        expect(result.matches[0].content).toBe("const price = '$100.50';")
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should handle quotes in search pattern", async () => {
+      writeTestFile("test.ts", 'const message = "Hello World";')
+
+      const result = await grepSearch(
+        {
+          query: '"Hello World"',
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toHaveLength(1)
+        expect(result.matches[0].content).toBe('const message = "Hello World";')
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should handle multiple include patterns", async () => {
+      writeTestFile("test.ts", "typescript file")
+      writeTestFile("test.js", "javascript file")
+      writeTestFile("test.py", "python file")
+      writeTestFile("test.txt", "text file")
+
+      const result = await grepSearch(
+        {
+          query: "file",
+          include_pattern: "*.{ts,js}",
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        expect(result.matches).toHaveLength(2)
+        expect(result.matches.map((m) => m.file).sort()).toEqual(["test.js", "test.ts"])
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should respect max count limit", async () => {
+      // Create a file with many matches
+      const lines = Array.from({ length: 100 }, (_, i) => `const var${i} = ${i};`)
+      writeTestFile("many-matches.ts", lines.join("\n"))
+
+      const result = await grepSearch(
+        {
+          query: "const",
+        },
+        "rg",
+        testDir
+      )
+
+      if ("matches" in result) {
+        // Should be limited to 50 matches due to --max-count 50
+        expect(result.matches.length).toBeLessThanOrEqual(50)
+      } else {
+        throw new Error("Expected matches in result")
+      }
+    })
+
+    it("should handle invalid ripgrep path gracefully", async () => {
+      writeTestFile("test.ts", "const a = 1;")
+
+      const result = await grepSearch(
+        {
+          query: "const",
+        },
+        "/nonexistent/rg",
+        testDir
+      )
+
+      expect("error" in result).toBe(true)
+    })
+
+    it("should handle empty search patterns", async () => {
+      writeTestFile("test.ts", "const a = 1;")
+
+      const result = await grepSearch(
+        {
+          query: "",
+        },
+        "rg",
+        testDir
+      )
+
+      // Empty pattern should either return error or no matches
+      if ("matches" in result) {
+        expect(Array.isArray(result.matches)).toBe(true)
+      } else {
+        expect("error" in result).toBe(true)
+      }
+    })
   })
 
   describe("list_dir", () => {

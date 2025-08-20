@@ -40,7 +40,7 @@ Find examples of free and high quality rules on the [wispbit rules page](https:/
 - When everyone uses a different tool to write code, you need one central place that defines your code standards and enforces them.
 
 **How is this different from Bugbot, Copilot, CodeRabbit, Greptile?**
-- 100% open source and runs anywhere.
+- 100% open source and runs anywhere. Provider-agnostic.
 - It's specific as opposed to general. Works as expected from day one vs having to fine tune the tool over time with feedback.
 - You have full control of what gets reviewed and what doesn't.
 - You own the data and the prompts.

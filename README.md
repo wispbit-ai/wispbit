@@ -39,8 +39,8 @@ Find examples of free and high quality rules on the [wispbit rules page](https:/
 - The tools and prompts for _writing_ and _reviewing_ code are different. We've tried fitting this into existing tools but we found that a specialized tool improves accuracy and reduces noise significantly.
 - When everyone uses a different tool to write code, you need one central place that defines your code standards and enforces them.
 
-**How is this different from Bugbot, CodeRabbit, Greptile?**
-- 100% open source and runs anywhere.
+**How is this different from Bugbot, Copilot, CodeRabbit, Greptile?**
+- 100% open source and runs anywhere. Provider-agnostic.
 - It's specific as opposed to general. Works as expected from day one vs having to fine tune the tool over time with feedback.
 - You have full control of what gets reviewed and what doesn't.
 - You own the data and the prompts.

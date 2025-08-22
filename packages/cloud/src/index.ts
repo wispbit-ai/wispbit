@@ -18,6 +18,5 @@ process.emit = function (event, ...args) {
 } as typeof process.emit
 
 // Use the file extension to help the module resolver find the file
-// @ts-expect-error - This is correct
 // eslint-disable-next-line import/no-unresolved
 import("./run.js")

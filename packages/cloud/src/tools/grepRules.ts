@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { createWispbitApi, McpGrepRule } from "../apiClient.js"
+import { createWispbitApi } from "../apiClient.js"
 
 import { McpTool, ToolContext } from "./types"
 

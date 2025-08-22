@@ -1,0 +1,6 @@
+**
+vitest.config.mts
+!dist/**
+!package.json
+__tests__/**
+**/*.test.ts

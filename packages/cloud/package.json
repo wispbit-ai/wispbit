@@ -1,0 +1,43 @@
+{
+  "name": "@wispbit/cloud",
+  "version": "1.0.0",
+  "description": "wispbit CLI to connect to wispbit cloud",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "wispbit": "./dist/src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wispbit-ai/wispbit.git"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsx build.ts",
+    "lint": "eslint . --ext .ts",
+    "cli": "tsx src/index.ts",
+    "deploy": "pnpm run build && pnpm publish --access=public --no-git-checks"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "commander": "^12.0.0",
+    "zod": "^3.22.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "wispbit",
+    "code-quality",
+    "linting"
+  ]
+}

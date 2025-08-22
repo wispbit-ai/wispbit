@@ -16,7 +16,11 @@
     "allowJs": true,
   },
   "files": [],
-  "references": [{ "path": "packages/cli" }, { "path": "packages/sdk" }],
+  "references": [
+    { "path": "packages/cli" },
+    { "path": "packages/sdk" },
+    { "path": "packages/cloud" },
+  ],
   "exclude": [
     "packages/**/build/*",
     "packages/**/dist/*",

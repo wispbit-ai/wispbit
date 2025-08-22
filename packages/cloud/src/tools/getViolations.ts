@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { createWispbitApi } from "../apiClient.js"
+import { createWispbitApi, McpViolation, McpOtherComment } from "../apiClient.js"
 
 import { McpTool, ToolContext } from "./types.js"
 
@@ -45,7 +45,7 @@ export const getViolationsTool: McpTool = {
     },
     required: ["repository_url", "pull_request_number"],
   },
-  handler: async (args: any, context: ToolContext) => {
+  handler: async (args: unknown, context: ToolContext) => {
     try {
       const { repository_url, pull_request_number, show_other_comments } =
         GetViolationsSchema.parse(args)
@@ -85,7 +85,7 @@ export const getViolationsTool: McpTool = {
       }
 
       // Group violations by file for better readability
-      const violationsByFile = new Map<string, any[]>()
+      const violationsByFile = new Map<string, McpViolation[]>()
       for (const violation of violations) {
         const fileName = violation.fileName || "Unknown file"
         if (!violationsByFile.has(fileName)) {
@@ -102,10 +102,10 @@ export const getViolationsTool: McpTool = {
         responseText += `**${fileName}**\n`
         for (const violation of fileViolations) {
           responseText += `- **ID:** ${violation.id || "unknown"}\n`
-          responseText += `  **Lines:** ${violation.lineNumber || "Unknown"}\n`
+          responseText += `  **Lines:** ${violation.lineNumbers || "Unknown"}\n`
           responseText += `  **Is Resolved:** ${violation.isResolved ? "Yes" : "No"}\n`
           responseText += `  **Rule:** ${violation.ruleName || "Unknown Rule"} (${violation.ruleId || "unknown"})\n`
-          responseText += `  **Description:** ${violation.message || "No message"}\n\n`
+          responseText += `  **Description:** ${violation.description || "No message"}\n\n`
         }
         responseText += "---\n\n"
       }
@@ -115,7 +115,7 @@ export const getViolationsTool: McpTool = {
         responseText += `## Other Comments (non-wispbit) (${other_comments.length})\n\n`
 
         // Group comments by file for better readability
-        const commentsByFile = new Map<string, any[]>()
+        const commentsByFile = new Map<string, McpOtherComment[]>()
         for (const comment of other_comments) {
           const fileName = comment.path || "General Comments"
           if (!commentsByFile.has(fileName)) {
@@ -128,11 +128,14 @@ export const getViolationsTool: McpTool = {
           responseText += `**${fileName}**\n`
           for (const comment of fileComments) {
             responseText += `- **ID:** ${comment.id || "unknown"}\n`
-            if (comment.line) {
-              responseText += `  **Lines:** ${comment.line}\n`
+            if (comment.lineReferences && comment.lineReferences.length > 0) {
+              const lineRefs = comment.lineReferences
+                .map((ref) => `${ref.start}-${ref.end} (${ref.side})`)
+                .join(", ")
+              responseText += `  **Lines:** ${lineRefs}\n`
             }
             responseText += `  **Is Resolved:** ${comment.isResolved ? "Yes" : "No"}\n`
-            responseText += `  **Author:** ${comment.user || "Unknown user"}\n`
+            responseText += `  **Author:** ${comment.author || "Unknown user"}\n`
             responseText += `  **Description:** ${comment.body || "No content"}\n\n`
           }
           responseText += "---\n\n"
@@ -159,26 +162,4 @@ export const getViolationsTool: McpTool = {
       }
     }
   },
-}
-
-// Helper types for violations
-export interface Violation {
-  id: string
-  ruleId: string
-  ruleName: string
-  fileName: string
-  lineNumber: number
-  message: string
-  severity: "error" | "warning" | "info"
-  isResolved: boolean
-}
-
-export interface GitHubComment {
-  id: number
-  user: string
-  body: string
-  createdAt: string
-  updatedAt: string
-  path?: string
-  line?: number
 }

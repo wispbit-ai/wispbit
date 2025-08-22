@@ -50,7 +50,7 @@ export const updateRuleTool: McpTool = {
           content: [
             {
               type: "text",
-              text: `Error: Failed to update rule. ${response.error || response.message || "Unknown error"}`,
+              text: `Error: Failed to update rule. ${response.message || response.error || "Unknown error"}`,
             },
           ],
         }

@@ -70,7 +70,7 @@ For ambiguous queries, request clarification before proceeding with a best-guess
           content: [
             {
               type: "text",
-              text: `Error: Failed to search rules. ${response.error || response.message || "Unknown error"}`,
+              text: `Error: Failed to search rules. ${response.message || response.error || "Unknown error"}`,
             },
           ],
         }

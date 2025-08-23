@@ -140,11 +140,8 @@ export function isToolResponse(completion: OpenAICompletion): boolean {
  * @param completion - OpenAI API completion response
  * @returns boolean indicating if the response is a regular message
  */
-export function isMessageResponse(
-  completion: OpenAICompletion,
-  wasStructuredRequest = false
-): boolean {
-  return !isToolResponse(completion) && !isStructuredResponse(completion, wasStructuredRequest)
+export function isMessageResponse(completion: OpenAICompletion): boolean {
+  return !isToolResponse(completion) && !isStructuredResponse(completion)
 }
 
 /**
@@ -154,14 +151,7 @@ export function isMessageResponse(
  * @param wasStructuredRequest - Whether the request used structured output format
  * @returns boolean indicating if the response is structured
  */
-export function isStructuredResponse(
-  completion: OpenAICompletion,
-  wasStructuredRequest = false
-): boolean {
-  // If we explicitly requested structured output, treat it as structured
-  if (wasStructuredRequest) return true
-
-  // Fallback: try to parse JSON from content (for backward compatibility)
+export function isStructuredResponse(completion: OpenAICompletion): boolean {
   try {
     const content = completion.choices[0]?.message.content
     if (!content) return false
@@ -347,8 +337,6 @@ export const getOpenAICompletion = async function (
     cost: new Big(completion.usage?.cost ?? 0).toString(),
   }
 
-  const wasStructuredRequest = !!responseFormat
-
   // Return a different response type based on the content
   if (isToolResponse(completion)) {
     return {
@@ -356,15 +344,13 @@ export const getOpenAICompletion = async function (
       toolCalls: getToolCalls(completion),
       usage,
     }
-  } else if (isStructuredResponse(completion, wasStructuredRequest)) {
-    const content = getStructuredContent(completion)
-    if (!content) throw new Error("Failed to parse structured content")
+  } else if (isStructuredResponse(completion)) {
     return {
       type: "structured",
-      content,
+      content: JSON.parse(getMessageContent(completion) || "{}"),
       usage,
     }
-  } else if (isMessageResponse(completion, wasStructuredRequest)) {
+  } else if (isMessageResponse(completion)) {
     return {
       type: "message",
       content: getMessageContent(completion),

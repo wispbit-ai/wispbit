@@ -350,13 +350,17 @@ export const getOpenAICompletion = async function (
       content: JSON.parse(getMessageContent(completion) || "{}"),
       usage,
     }
-  } else if (isMessageResponse(completion)) {
+  } else if (getMessageContent(completion)) {
     return {
       type: "message",
       content: getMessageContent(completion),
       usage,
     }
   } else {
-    throw new Error("Invalid response type")
+    throw new Error(
+      `Invalid response type- received neither a message, tool call, or structured response. Got: ${JSON.stringify(
+        completion
+      )}`
+    )
   }
 }

@@ -126,18 +126,21 @@ export function isLineReferenceValidForPatch(lineReference: LineReference, patch
 
   // Check if start and end are within any of the patch's context ranges
   const ranges = lineReference.side === "left" ? oldRanges : newRanges
-  let overlapsWithAnyRange = false
 
+  // First, check if the line reference is completely outside all patch ranges
+  // This is a more strict check that can provide early return for better performance
+  let isCompletelyOutside = true
   for (const [rangeStart, rangeEnd] of ranges) {
-    // Check if there's any overlap between the line reference and this range
-    if (lineReference.start <= rangeEnd && lineReference.end >= rangeStart) {
-      overlapsWithAnyRange = true
+    // Check if this range completely contains the line reference
+    // Line reference is contained if: rangeStart <= lineReference.start AND lineReference.end <= rangeEnd
+    if (rangeStart <= lineReference.start && lineReference.end <= rangeEnd) {
+      isCompletelyOutside = false
       break
     }
   }
 
-  if (!overlapsWithAnyRange) {
-    return false // Line reference doesn't overlap with any patch contexts
+  if (isCompletelyOutside) {
+    return false // Line reference is completely outside all patch ranges
   }
 
   // Check if any line in the range is in the changed lines

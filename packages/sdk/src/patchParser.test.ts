@@ -16,6 +16,75 @@ describe("isLineReferenceValidForPatch", () => {
     side,
   })
 
+  it("should return false for line references that are outside the patch", () => {
+    const patch = `@@ -36,11 +36,13 @@ export async function completeChatBotInvocation(
+     response,
+     cost,
+     githubPullRequestCommentId = undefined,
++    skippedReason = undefined,
+   }: {
+     chatBotInvocationId: string
+     response: string
+     cost: string
+     githubPullRequestCommentId?: string
++    skippedReason?: string
+   }
+ ) {
+   await this.db
+@@ -51,6 +53,7 @@ export async function completeChatBotInvocation(
+       cost,
+       response,
+       githubPullRequestCommentId,
++      skippedReason,
+     })
+     .where(eq(chatBotInvocations.id, chatBotInvocationId))
+ }
+`
+
+    // This line reference overlaps with the patch range [36, 48] (30 <= 48 && 46 >= 36)
+    // So it's not completely outside, but it should still be invalid because it doesn't contain actual changes
+    const lineRef = createLineReference(30, 46, "right")
+    expect(isLineReferenceValidForPatch(lineRef, patch)).toBe(false)
+  })
+
+  it("should return false for line references that are completely outside the patch ranges", () => {
+    const patch = `@@ -36,11 +36,13 @@ export async function completeChatBotInvocation(
+     response,
+     cost,
+     githubPullRequestCommentId = undefined,
++    skippedReason = undefined,
+   }: {
+     chatBotInvocationId: string
+     response: string
+     cost: string
+     githubPullRequestCommentId?: string
++    skippedReason?: string
+   }
+ ) {
+   await this.db
+@@ -51,6 +53,7 @@ export async function completeChatBotInvocation(
+       cost,
+       response,
+       githubPullRequestCommentId,
++      skippedReason,
+     })
+     .where(eq(chatBotInvocations.id, chatBotInvocationId))
+ }
+`
+
+    // Completely before all ranges
+    const beforeAllRanges = createLineReference(20, 30, "right")
+    expect(isLineReferenceValidForPatch(beforeAllRanges, patch)).toBe(false)
+
+    // Completely after all ranges
+    const afterAllRanges = createLineReference(60, 70, "right")
+    expect(isLineReferenceValidForPatch(afterAllRanges, patch)).toBe(false)
+
+    // Between ranges but not overlapping
+    const betweenRanges = createLineReference(49, 50, "right")
+    expect(isLineReferenceValidForPatch(betweenRanges, patch)).toBe(false)
+  })
+
   it("should return true for line references that overlap with added lines", () => {
     const patch = `@@ -1,5 +1,6 @@
  line1
@@ -216,13 +285,21 @@ describe("isLineReferenceValidForPatch", () => {
 +another added line
  line100`
 
-    // Test spanning the entire range across multiple hunks
-    const spanningRange = createLineReference(1, 101, "right") // Spans from first to last hunk
-    expect(isLineReferenceValidForPatch(spanningRange, edgeCaseMultiPatch)).toBe(true)
+    // Test line reference that includes an added line in the first hunk
+    const firstHunkAdded = createLineReference(2, 2, "right") // Added line in first hunk
+    expect(isLineReferenceValidForPatch(firstHunkAdded, edgeCaseMultiPatch)).toBe(true)
+
+    // Test line reference that includes an added line in the second hunk
+    const secondHunkAdded = createLineReference(101, 101, "right") // Added line in second hunk
+    expect(isLineReferenceValidForPatch(secondHunkAdded, edgeCaseMultiPatch)).toBe(true)
 
     // Test context lines that don't include changes
     const contextOnly = createLineReference(1, 1, "right") // Context line in first hunk
     expect(isLineReferenceValidForPatch(contextOnly, edgeCaseMultiPatch)).toBe(false)
+
+    // Test line reference completely outside all patch ranges
+    const outsideRange = createLineReference(50, 80, "right") // Between the two hunks
+    expect(isLineReferenceValidForPatch(outsideRange, edgeCaseMultiPatch)).toBe(false)
   })
 })
 

@@ -378,33 +378,6 @@ export function getRuleFromFile(filePath: string, content: string): CodebaseRule
   }
 }
 
-export function getRuleFromCsv(record: Record<string, string>): CodebaseRule {
-  // Parse include patterns as JSON array
-  let includePatterns: string[] = []
-  try {
-    includePatterns = JSON.parse(record.include)
-    if (!Array.isArray(includePatterns)) {
-      console.warn(
-        `Warning: include field for rule "${record.name}" is not a valid JSON array. Using empty array instead.`
-      )
-      includePatterns = []
-    }
-  } catch (error) {
-    console.warn(
-      `Warning: Failed to parse include field for rule "${record.name}" as JSON array. Using empty array instead.`
-    )
-    includePatterns = []
-  }
-
-  return {
-    id: record.id,
-    directory: "",
-    name: record.name,
-    contents: record.content,
-    include: includePatterns,
-  }
-}
-
 /**
  * Create a markdown file with frontmatter from a rule
  */

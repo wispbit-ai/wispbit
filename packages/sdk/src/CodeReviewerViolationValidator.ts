@@ -6,7 +6,7 @@ import { prettyFactory } from "pino-pretty"
 
 import { CLAUDE_4_SONNET } from "@wispbit/sdk/models"
 import { getOpenAICompletion, isToolResponseType } from "@wispbit/sdk/openai"
-import { extractDiffHunk } from "@wispbit/sdk/patchParser"
+import { addLineNumbersToPatch, extractDiffHunk, filterDiff } from "@wispbit/sdk/patchParser"
 import { FileChange, Violation } from "@wispbit/sdk/types"
 
 type CodeReviewerViolationValidatorOptions = {
@@ -84,13 +84,20 @@ export class CodeReviewerViolationValidator {
       3
     )
 
+    const oldHunk = filterDiff(context, "deletions")
+    const newHunk = filterDiff(context, "additions")
+
     const validationPrompt = `You are a code review validator. Your job is to determine if this violation is actually a violation of the stated rule
 
 You will be given:
 1. A rule that was supposedly violated
 2. A description of the violation
 3. The file and it's status
-4. The relevant code context
+4. The relevant old_lines and new_lines. 
+    - Code context is organized into old_lines and new_lines.
+    - new_lines shows added / updated lines. old_lines shows removed lines. 
+    - Code lines are prefixed with symbols ('+', '-', ' '). The '+' symbol indicates new code added, the '-' symbol indicates code removed in the PR, and the ' ' symbol indicates unchanged code.
+    - Line numbers are included to help you understand the context of the code change.
 
 <rule_description>
 ${violation.rule.contents}
@@ -108,9 +115,13 @@ ${fileChange.filename}
 ${fileChange.status}
 </file_status>
 
-<code_context>
-${context}
-</code_context>
+<old_lines>
+${addLineNumbersToPatch(oldHunk)}
+</old_lines>
+
+<new_lines>
+${addLineNumbersToPatch(newHunk)}
+</new_lines>
 
 Use the following criteria to determine if the violation is valid:
 1. The rule description makes sense in the context of the code and violation description.

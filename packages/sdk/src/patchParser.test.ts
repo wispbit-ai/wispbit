@@ -2,6 +2,7 @@ import {
   extractDiffHunk,
   isLineReferenceValidForPatch,
   addLineNumbersToPatch,
+  filterDiff,
 } from "@wispbit/sdk/patchParser"
 import { LineReference } from "@wispbit/sdk/types"
 
@@ -477,7 +478,7 @@ describe("addLineNumbersToPatch", () => {
 
     const result = addLineNumbersToPatch(patch)
 
-    expect(result).toBe(`       @@ -7,7 +7,8 @@
+    expect(result).toBe(`@@ -7,7 +7,8 @@
 L7 R7          select 
 L8 R8            cast(c.customer_uuid as text) as customer_id,
 L9 R9            c.customer_name,
@@ -503,7 +504,7 @@ L13 R14    )`)
 
     const result = addLineNumbersToPatch(patch)
 
-    expect(result).toBe(`       @@ -1,8 +1,9 @@
+    expect(result).toBe(`@@ -1,8 +1,9 @@
 L1 R1  function test() {
 L2 R2    console.log("start");
 L3 R3  
@@ -528,12 +529,212 @@ L7 R8  }`)
     const result = addLineNumbersToPatch(patchWithEmptyLines)
 
     // The empty line should be treated as a context line and have line numbers
-    expect(result).toBe(`       @@ -1,4 +1,5 @@
+    expect(result).toBe(`@@ -1,4 +1,5 @@
 L1 R1  line1
 L2 R2 
 L3 -line3
     R3 +new line3
     R4 +added line
 L4 R5  line4`)
+  })
+})
+
+describe("filterDiff", () => {
+  it("should return empty strings for empty patch", () => {
+    const result = filterDiff("", "additions")
+    expect(result).toBe("")
+  })
+  it("should split simple addition and removal", () => {
+    const patch = `@@ -1,5 +1,5 @@
+ line1
+-removed line
++added line
+ line3
+ line4`
+
+    const oldHunk = filterDiff(patch, "deletions")
+    const newHunk = filterDiff(patch, "additions")
+
+    expect(oldHunk).toBe(`@@ -1,4 +1,3 @@
+ line1
+-removed line
+ line3
+ line4`)
+    expect(newHunk).toBe(`@@ -1,3 +1,4 @@
+ line1
++added line
+ line3
+ line4`)
+  })
+
+  it("should handle multiple consecutive additions", () => {
+    const patch = `@@ -1,3 +1,5 @@
+ line1
++added line1
++added line2
+ line2
+ line3`
+
+    const oldHunk = filterDiff(patch, "deletions")
+    const newHunk = filterDiff(patch, "additions")
+
+    expect(oldHunk).toBe(`@@ -1,3 +1,3 @@
+ line1
+ line2
+ line3`)
+    expect(newHunk).toBe(`@@ -1,3 +1,5 @@
+ line1
++added line1
++added line2
+ line2
+ line3`)
+  })
+
+  it("should handle multiple consecutive removals", () => {
+    const patch = `@@ -1,5 +1,3 @@
+ line1
+-removed line1
+-removed line2
+ line4
+ line5`
+
+    const oldHunk = filterDiff(patch, "deletions")
+    const newHunk = filterDiff(patch, "additions")
+
+    expect(oldHunk).toBe(`@@ -1,5 +1,3 @@
+ line1
+-removed line1
+-removed line2
+ line4
+ line5`)
+    expect(newHunk).toBe(`@@ -1,3 +1,3 @@
+ line1
+ line4
+ line5`)
+  })
+
+  it("should separate non-consecutive diffs", () => {
+    const patch = `@@ -1,7 +1,7 @@
+ line1
+-removed line1
+ line3
++added line1
+ line5
+-removed line2
++added line2`
+
+    const oldHunk = filterDiff(patch, "deletions")
+    const newHunk = filterDiff(patch, "additions")
+
+    expect(oldHunk).toBe(`@@ -1,5 +1,3 @@
+ line1
+-removed line1
+ line3
+ line5
+-removed line2`)
+    expect(newHunk).toBe(`@@ -1,3 +1,5 @@
+ line1
+ line3
++added line1
+ line5
++added line2`)
+  })
+
+  it("should handle mixed additions and removals in sequence", () => {
+    const patch = `@@ -1,6 +1,6 @@
+ line1
+-old line1
+-old line2
++new line1
++new line2
+ line6`
+
+    const oldHunk = filterDiff(patch, "deletions")
+    const newHunk = filterDiff(patch, "additions")
+
+    expect(oldHunk).toBe(`@@ -1,4 +1,2 @@
+ line1
+-old line1
+-old line2
+ line6`)
+    expect(newHunk).toBe(`@@ -1,2 +1,4 @@
+ line1
++new line1
++new line2
+ line6`)
+  })
+
+  it("should handle only context lines", () => {
+    const patch = `@@ -1,3 +1,3 @@
+ line1
+ line2
+ line3`
+
+    const oldHunk = filterDiff(patch, "deletions")
+    const newHunk = filterDiff(patch, "additions")
+
+    expect(oldHunk).toBe(`@@ -1,3 +1,3 @@
+ line1
+ line2
+ line3`)
+    expect(newHunk).toBe(`@@ -1,3 +1,3 @@
+ line1
+ line2
+ line3`)
+  })
+
+  it("should handle complex real-world example", () => {
+    const complexPatch = `@@ -7,7 +7,8 @@
+         select 
+           cast(c.customer_uuid as text) as customer_id,
+           c.customer_name,
+-          c.email
++          c.email,
++          c.phone_number
+         from customer c
+       """
+   )`
+
+    const oldHunk = filterDiff(complexPatch, "deletions")
+    const newHunk = filterDiff(complexPatch, "additions")
+
+    expect(oldHunk).toBe(`@@ -7,7 +7,6 @@
+         select 
+           cast(c.customer_uuid as text) as customer_id,
+           c.customer_name,
+-          c.email
+         from customer c
+       """
+   )`)
+    expect(newHunk).toBe(`@@ -7,6 +7,8 @@
+         select 
+           cast(c.customer_uuid as text) as customer_id,
+           c.customer_name,
++          c.email,
++          c.phone_number
+         from customer c
+       """
+   )`)
+  })
+
+  it("should handle context at boundaries", () => {
+    const patch = `@@ -1,3 +1,3 @@
+-first line
++new first line
+ middle line
+ last line`
+
+    const oldHunk = filterDiff(patch, "deletions")
+    const newHunk = filterDiff(patch, "additions")
+
+    // With 3 lines of context, should include all available lines
+    expect(oldHunk).toBe(`@@ -1,3 +1,2 @@
+-first line
+ middle line
+ last line`)
+    expect(newHunk).toBe(`@@ -1,2 +1,3 @@
++new first line
+ middle line
+ last line`)
   })
 })

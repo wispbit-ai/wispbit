@@ -1,6 +1,6 @@
 {
   "name": "@wispbit/sdk",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "type": "module",
   "main": "dist/CodeReviewer.js",
   "types": "dist/CodeReviewer.d.ts",
@@ -70,26 +70,30 @@
     "build:tsc": "tsc",
     "test": "vitest run --exclude '**/*eval.test.ts'",
     "lint": "eslint . --ext .ts",
-    "deploy": "pnpm run build && pnpm publish --access=public --no-git-checks"
+    "deploy": "pnpm run build && pnpm publish --access=public --no-git-checks",
+    "eval:codeReviewer": "braintrust eval ./src/codeReviewer.eval.ts",
+    "eval:validateViolation": "braintrust eval ./src/codeReviewerViolationValidator.eval.ts"
   },
   "dependencies": {
+    "autoevals": "0.0.129",
     "big.js": "^7.0.1",
+    "braintrust": "^0.0.205",
     "date-fns": "^2.30.0",
+    "dotenv": "^16.3.1",
+    "fs-extra": "^11.2.0",
     "glob": "^10.3.10",
     "minimatch": "^9.0.3",
     "openai": "^4.0.0",
-    "zod": "^3.24.3",
+    "p-retry": "^6.2.1",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
-    "p-retry": "^6.2.1",
-    "dotenv": "^16.3.1",
-    "fs-extra": "^11.2.0"
+    "zod": "^3.24.3"
   },
   "devDependencies": {
-    "vite-tsconfig-paths": "^5.1.4",
-    "esbuild": "^0.19.0",
-    "typescript": "^5.0.0",
     "@types/node": "^20.0.0",
-    "tsx": "^4.0.0"
+    "esbuild": "^0.19.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

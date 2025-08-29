@@ -185,10 +185,6 @@ export function extractDiffHunk(
   let violationEnd = -1
 
   // Track line numbers for the extracted hunk
-  let extractedOldStart = -1
-  let extractedOldCount = 0
-  let extractedNewStart = -1
-  let extractedNewCount = 0
   const extractedLineIndices: number[] = []
 
   // First pass: find the hunk and violation boundaries
@@ -260,72 +256,8 @@ export function extractDiffHunk(
   }
 
   // Second pass: calculate line numbers for the extracted portion
-  // Reset counters and parse from the target hunk start
-  currentOldLine = 0
-  currentNewLine = 0
-  inHunk = false
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-
-    if (i === targetHunkStart && line.startsWith("@@")) {
-      const oldStart = parseInt(line.split(" ")[1].split(",")[0].replace("-", ""))
-      const newStart = parseInt(line.split(" ")[2].split(",")[0].replace("+", ""))
-      currentOldLine = oldStart
-      currentNewLine = newStart
-      inHunk = true
-    } else if (!inHunk || i < targetHunkStart) {
-      continue
-    } else if (extractedLineIndices.includes(i)) {
-      // This line is included in our extracted hunk
-      if (line.startsWith("+")) {
-        if (extractedNewStart === -1) {
-          extractedNewStart = currentNewLine
-          // For additions, the old line position is where it would be inserted
-          if (extractedOldStart === -1) {
-            extractedOldStart = currentOldLine
-          }
-        }
-        extractedNewCount++
-        currentNewLine++
-      } else if (line.startsWith("-")) {
-        if (extractedOldStart === -1) {
-          extractedOldStart = currentOldLine
-          // For deletions, the new line position is where it was removed from
-          if (extractedNewStart === -1) {
-            extractedNewStart = currentNewLine
-          }
-        }
-        extractedOldCount++
-        currentOldLine++
-      } else if (!line.startsWith("\\")) {
-        // Context line
-        if (extractedOldStart === -1) {
-          extractedOldStart = currentOldLine
-        }
-        if (extractedNewStart === -1) {
-          extractedNewStart = currentNewLine
-        }
-        extractedOldCount++
-        extractedNewCount++
-        currentOldLine++
-        currentNewLine++
-      }
-    } else if (i > targetHunkStart && line.startsWith("@@")) {
-      // We've reached another hunk, stop
-      break
-    } else {
-      // Update line numbers for lines we're not including
-      if (line.startsWith("+")) {
-        currentNewLine++
-      } else if (line.startsWith("-")) {
-        currentOldLine++
-      } else if (!line.startsWith("\\") && !line.startsWith("@@")) {
-        currentOldLine++
-        currentNewLine++
-      }
-    }
-  }
+  const hunkInfo = calculateHunkLineNumbers(lines, extractedLineIndices, targetHunkStart)
+  const { extractedOldStart, extractedOldCount, extractedNewStart, extractedNewCount } = hunkInfo
 
   // Generate the new hunk header
   const oldSpec =
@@ -375,7 +307,7 @@ export function addLineNumbersToPatch(patch: string): string {
         oldLineNum = parseInt(match[1], 10)
         newLineNum = parseInt(match[2], 10)
       }
-      result.push(`       ${line}`)
+      result.push(line)
     } else if (line.startsWith("-")) {
       // Deletion - only in old file
       result.push(`L${oldLineNum} ${line}`)
@@ -396,4 +328,389 @@ export function addLineNumbersToPatch(patch: string): string {
   }
 
   return result.join("\n")
+}
+
+/**
+ * Helper function to calculate line numbers for an extracted hunk.
+ * This is the "second pass" logic used in both extractDiffHunk and splitHunks.
+ *
+ * @param lines - Array of all lines from the patch
+ * @param extractedLineIndices - Indices of lines to include in the extracted hunk
+ * @param targetHunkStart - Index of the hunk header line to start from (optional, -1 to scan all)
+ * @returns Object containing line number information for the extracted hunk
+ */
+function calculateHunkLineNumbers(
+  lines: string[],
+  extractedLineIndices: number[],
+  targetHunkStart: number = -1
+): {
+  extractedOldStart: number
+  extractedOldCount: number
+  extractedNewStart: number
+  extractedNewCount: number
+} {
+  let currentOldLine = 0
+  let currentNewLine = 0
+  let inHunk = false
+  let extractedOldStart = -1
+  let extractedOldCount = 0
+  let extractedNewStart = -1
+  let extractedNewCount = 0
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    if (
+      (targetHunkStart === -1 && line.startsWith("@@")) ||
+      (i === targetHunkStart && line.startsWith("@@"))
+    ) {
+      const oldStart = parseInt(line.split(" ")[1].split(",")[0].replace("-", ""))
+      const newStart = parseInt(line.split(" ")[2].split(",")[0].replace("+", ""))
+      currentOldLine = oldStart
+      currentNewLine = newStart
+      inHunk = true
+    } else if (!inHunk || (targetHunkStart !== -1 && i < targetHunkStart)) {
+      continue
+    } else if (extractedLineIndices.includes(i)) {
+      // This line is included in our extracted hunk
+      if (line.startsWith("+")) {
+        if (extractedNewStart === -1) {
+          extractedNewStart = currentNewLine
+        }
+        if (extractedOldStart === -1) {
+          // For additions, the old line position should be the insertion point (current old line)
+          extractedOldStart = currentOldLine
+        }
+        extractedNewCount++
+        currentNewLine++
+      } else if (line.startsWith("-")) {
+        if (extractedOldStart === -1) {
+          extractedOldStart = currentOldLine
+        }
+        if (extractedNewStart === -1) {
+          // For deletions, the new line position should be the deletion point (current new line)
+          extractedNewStart = currentNewLine
+        }
+        extractedOldCount++
+        currentOldLine++
+      } else if (!line.startsWith("\\")) {
+        // Context line
+        if (extractedOldStart === -1) {
+          extractedOldStart = currentOldLine
+        }
+        if (extractedNewStart === -1) {
+          extractedNewStart = currentNewLine
+        }
+        extractedOldCount++
+        extractedNewCount++
+        currentOldLine++
+        currentNewLine++
+      }
+    } else if (targetHunkStart !== -1 && i > targetHunkStart && line.startsWith("@@")) {
+      // We've reached another hunk, stop
+      break
+    } else {
+      // Update line numbers for lines we're not including
+      if (line.startsWith("+")) {
+        currentNewLine++
+      } else if (line.startsWith("-")) {
+        currentOldLine++
+      } else if (!line.startsWith("\\") && !line.startsWith("@@")) {
+        currentOldLine++
+        currentNewLine++
+      }
+    }
+  }
+
+  return {
+    extractedOldStart: extractedOldStart === -1 ? 1 : extractedOldStart,
+    extractedOldCount,
+    extractedNewStart: extractedNewStart === -1 ? 1 : extractedNewStart,
+    extractedNewCount,
+  }
+}
+
+/**
+ * Helper function to add context lines around target indices.
+ * This collects indices of lines that should be included based on the target lines and context size.
+ *
+ * @param targetIndices - Array of line indices that are the primary targets
+ * @param lines - Array of all lines from the patch
+ * @param contextLines - Number of context lines to include before and after each target
+ * @returns Array of indices to include (target + context), sorted in order
+ */
+function _addContextAroundIndices(
+  targetIndices: number[],
+  lines: string[],
+  contextLines: number
+): number[] {
+  const extractedLineIndices: number[] = []
+  const processedIndices = new Set<number>()
+
+  for (const targetIdx of targetIndices) {
+    // Add the target line itself
+    if (!processedIndices.has(targetIdx)) {
+      extractedLineIndices.push(targetIdx)
+      processedIndices.add(targetIdx)
+    }
+
+    // Add context before
+    for (let i = targetIdx - 1; i >= Math.max(0, targetIdx - contextLines); i--) {
+      // Skip hunk headers and already processed lines
+      if (!lines[i].startsWith("@@") && !processedIndices.has(i)) {
+        extractedLineIndices.push(i)
+        processedIndices.add(i)
+      }
+    }
+
+    // Add context after
+    for (let i = targetIdx + 1; i <= Math.min(lines.length - 1, targetIdx + contextLines); i++) {
+      // Skip hunk headers and already processed lines
+      if (!lines[i].startsWith("@@") && !processedIndices.has(i)) {
+        extractedLineIndices.push(i)
+        processedIndices.add(i)
+      }
+    }
+  }
+
+  // Sort indices to maintain order
+  return extractedLineIndices.sort((a, b) => a - b)
+}
+
+type Line =
+  | { kind: "ctx"; text: string } // ' ' (no prefix in raw, see note)
+  | { kind: "add"; text: string } // '+' line (kept in --add)
+  | { kind: "del"; text: string } // '-' line (kept in --remove)
+  | { kind: "meta"; text: string } // '\ No newline at end of file'
+
+type Hunk = {
+  rawHeader: string // the entire "@@ -a,b +c,d @@" line (we'll rewrite counts)
+  oldStart: number
+  oldCount: number
+  newStart: number
+  newCount: number
+  headerSuffix: string // trailing function name after @@, if any
+  lines: Line[]
+}
+
+type FileDiff = {
+  headers: string[] // lines before first hunk (diff --git, index, ---/+++ etc.)
+  hunks: Hunk[]
+}
+
+type ParsedDiff = FileDiff[]
+
+// 2) More forgiving hunk header (allow leading spaces)
+const HUNK_RE = /^\s*@@\s*-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?\s*@@(.*)$/
+
+function parseUnifiedDiff(input: string): ParsedDiff {
+  const lines = input.replace(/\r\n/g, "\n").split("\n")
+  const files: ParsedDiff = []
+
+  let current: FileDiff | null = null
+  let inHunk = false
+  let currentHunk: Hunk | null = null
+
+  const startFile = (firstHeaderLine: string) => {
+    if (current && currentHunk) {
+      current.hunks.push(currentHunk)
+      currentHunk = null
+      inHunk = false
+    }
+    current = { headers: [firstHeaderLine], hunks: [] }
+    files.push(current)
+  }
+
+  const flushHunk = () => {
+    if (current && currentHunk) {
+      current.hunks.push(currentHunk)
+      currentHunk = null
+      inHunk = false
+    }
+  }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    // Start of a new file block?
+    if (line.startsWith("diff --git ")) {
+      startFile(line)
+      continue
+    }
+
+    // If we haven't started a file yet and see a hunk or ---/+++,
+    // start a file BUT DO NOT consume the current line.
+    if (!current) {
+      if (line.startsWith("--- ") || line.startsWith("+++ ") || HUNK_RE.test(line)) {
+        startFile("") // note: no header line pushed here
+        // fall-through intentionally, so we can process this same line as header/hunk below
+      } else {
+        startFile(line || "")
+        continue
+      }
+    }
+
+    // Hunk header?
+    const m = line.match(HUNK_RE)
+    if (m) {
+      flushHunk()
+
+      const oldStart = parseInt(m[1]!, 10)
+      const oldCount = m[2] ? parseInt(m[2], 10) : 1
+      const newStart = parseInt(m[3]!, 10)
+      const newCount = m[4] ? parseInt(m[4], 10) : 1
+      const suffix = m[5] ?? ""
+
+      currentHunk = {
+        rawHeader: `@@ -${oldStart}${m[2] ? "," + oldCount : ""} +${newStart}${m[4] ? "," + newCount : ""} @@${suffix}`,
+        oldStart,
+        oldCount,
+        newStart,
+        newCount,
+        headerSuffix: suffix,
+        lines: [],
+      }
+      inHunk = true
+      continue
+    }
+
+    // Collect file headers until first hunk
+    if (!inHunk) {
+      current!.headers.push(line)
+      continue
+    }
+
+    // Inside hunk
+    if (line.startsWith("+")) {
+      currentHunk!.lines.push({ kind: "add", text: line })
+    } else if (line.startsWith("-")) {
+      currentHunk!.lines.push({ kind: "del", text: line })
+    } else if (line.startsWith("\\ No newline at end of file")) {
+      currentHunk!.lines.push({ kind: "meta", text: line })
+    } else {
+      // treat everything else as context (git uses leading space)
+      currentHunk!.lines.push({ kind: "ctx", text: line })
+    }
+  }
+
+  flushHunk()
+  return files
+}
+
+type Mode = "additions" | "deletions"
+
+/**
+ * Filter a parsed diff to additions-only or deletions-only.
+ * Recomputes hunk counts and drops empty hunks/files.
+ */
+function filterParsedDiff(files: ParsedDiff, mode: Mode): ParsedDiff {
+  const keepAdds = mode === "additions"
+  const result: ParsedDiff = []
+
+  files.forEach((file) => {
+    const newFile: FileDiff = { headers: [...file.headers], hunks: [] }
+
+    file.hunks.forEach((h) => {
+      const keptLines: Line[] = []
+      // We keep all context lines; we keep add/del according to mode.
+      for (let i = 0; i < h.lines.length; i++) {
+        const ln = h.lines[i]
+        if (ln.kind === "meta") {
+          // Keep meta only if previous kept line exists (it qualifies the previous)
+          if (keptLines.length > 0) {
+            keptLines.push(ln)
+          }
+          continue
+        }
+        if (ln.kind === "ctx") {
+          keptLines.push(ln)
+          continue
+        }
+        if (ln.kind === "add" && keepAdds) {
+          keptLines.push(ln)
+          continue
+        }
+        if (ln.kind === "del" && !keepAdds) {
+          keptLines.push(ln)
+          continue
+        }
+        // else drop it
+      }
+
+      // Recompute counts: in unified diff counts, old = ctx + del, new = ctx + add
+      let oldCount = 0
+      let newCount = 0
+      keptLines.forEach((ln) => {
+        if (ln.kind === "ctx") {
+          oldCount++
+          newCount++
+        } else if (ln.kind === "del") {
+          oldCount++
+        } else if (ln.kind === "add") {
+          newCount++
+        } else {
+          // meta line does not contribute
+        }
+      })
+
+      // Drop hunks that end up empty (both sides 0, or only meta)
+      const hasMaterial =
+        keptLines.some((ln) => ln.kind === "ctx" || ln.kind === "add" || ln.kind === "del") &&
+        (oldCount > 0 || newCount > 0)
+
+      if (!hasMaterial) return
+
+      // Rebuild header with recomputed counts; keep original starts and suffix
+      const oldCountPart = `,${Math.max(oldCount, 0)}`
+      const newCountPart = `,${Math.max(newCount, 0)}`
+      const hdr =
+        `@@ -${h.oldStart}${oldCountPart} +${h.newStart}${newCountPart} @@` + (h.headerSuffix ?? "")
+
+      newFile.hunks.push({
+        ...h,
+        rawHeader: hdr,
+        oldCount,
+        newCount,
+        lines: keptLines,
+      })
+    })
+
+    // Keep file only if it has at least one hunk after filtering
+    if (newFile.hunks.length > 0) {
+      result.push(newFile)
+    }
+  })
+
+  return result
+}
+
+function renderUnifiedDiff(files: ParsedDiff): string {
+  const out: string[] = []
+
+  files.forEach((f, idx) => {
+    // Between files, separate with a single blank line (like git does).
+    if (idx > 0 && out[out.length - 1] !== "") {
+      out.push("")
+    }
+
+    // Clean headers: drop leading/trailing empty lines
+    const headers = [...f.headers]
+    while (headers.length && headers[0] === "") headers.shift()
+    while (headers.length && headers[headers.length - 1] === "") headers.pop()
+
+    out.push(...headers)
+
+    f.hunks.forEach((h) => {
+      out.push(h.rawHeader)
+      h.lines.forEach((ln) => out.push(ln.text))
+    })
+  })
+
+  let s = out.join("\n")
+  // Ensure exactly one trailing newline
+  if (!s.endsWith("\n")) s += "\n"
+  return s.trim()
+}
+
+export function filterDiff(diffText: string, mode: "additions" | "deletions"): string {
+  return renderUnifiedDiff(filterParsedDiff(parseUnifiedDiff(diffText), mode))
 }

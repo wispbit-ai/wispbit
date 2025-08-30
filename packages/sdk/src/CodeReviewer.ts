@@ -267,7 +267,7 @@ export class CodeReviewer {
       const toolCallResults = await Promise.all(toolCallPromises)
 
       // Process results in order and add to messages
-      const violationsToValidate: Violation[] = []
+      const violationsToValidate: { violation: Violation; reason: string }[] = []
 
       for (const { toolCall, toolResult, args } of toolCallResults) {
         // Add the tool result to the conversation
@@ -295,16 +295,20 @@ export class CodeReviewer {
             },
             rule: rules.find((r) => r.id === complaintParams.rule_id)!,
             optional: complaintParams.optional,
+            reason: complaintParams.reason,
           }
 
-          violationsToValidate.push(violation)
+          violationsToValidate.push({ violation, reason: complaintParams.reason })
         }
       }
 
       // Validate all violations in parallel
       if (violationsToValidate.length > 0) {
         const validationPromises = violationsToValidate.map(async (violation) => {
-          const validationResult = await this.violationValidator.validateViolation(violation, file)
+          const validationResult = await this.violationValidator.validateViolation(
+            violation.violation,
+            file
+          )
           return { violation, validationResult }
         })
 
@@ -315,9 +319,15 @@ export class CodeReviewer {
           totalCost = totalCost.plus(validationResult.cost)
 
           if (validationResult.isValid) {
-            violations.push({ ...violation, validationReasoning: validationResult.reasoning })
+            violations.push({
+              ...violation.violation,
+              validationReasoning: validationResult.reasoning,
+            })
           } else {
-            rejectedViolations.push({ violation, reasoning: validationResult.reasoning })
+            rejectedViolations.push({
+              violation: violation.violation,
+              reasoning: validationResult.reasoning,
+            })
           }
         }
       }

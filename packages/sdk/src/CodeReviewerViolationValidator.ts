@@ -98,6 +98,7 @@ You will be given:
     - new_lines shows added / updated lines. old_lines shows removed lines. 
     - Code lines are prefixed with symbols ('+', '-', ' '). The '+' symbol indicates new code added, the '-' symbol indicates code removed in the PR, and the ' ' symbol indicates unchanged code.
     - Line numbers are included to help you understand the context of the code change.
+5. The reason why the violation was reported by the original reviewer.
 
 <rule_description>
 ${violation.rule.contents}
@@ -123,10 +124,16 @@ ${addLineNumbersToPatch(oldHunk)}
 ${addLineNumbersToPatch(newHunk)}
 </new_lines>
 
+<reason>
+${violation.reason}
+</reason>
+
 Use the following criteria to determine if the violation is valid:
 1. The rule description makes sense in the context of the code and violation description.
 2. The status of the file aligns with the rule. For example, if we are checking for style violations, and the file is deleted, we should probably not consider it a violation.
 3. If the rule requires you to check other files and you don't have access to them, you should always consider it a violation.
+4. The comment isn't guessing or making an assumption for something that's not in the rule.
+5. The reason why the violation was reported by the original reviewer makes sense in context of the rule.
 
 Use the report_validation tool to report your decision and reasoning.
 `

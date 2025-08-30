@@ -33,6 +33,8 @@ export interface ComplaintParameters {
   rule_id: string
   /** Whether the violation is optional */
   optional: boolean
+  /** Why the violation was reported */
+  reason: string
 }
 
 /**
@@ -403,6 +405,11 @@ const complaintTool: ChatCompletionTool = {
           type: "string",
           description:
             "Short sentence about what the violation is. You are going to be commenting on the PR as if you are a software engineer, so keep the following in mind when reporting a violation: 1. You can exclude line numbers from the description since we are passing them separately 2. You don't need to include the rule itself in the description, since we are passing it separately. 3. Humans prefer short sentences, so keep it concise with only the most important information about what action needs to be taken. 4. Use backticks `` when referring to code.",
+        },
+        reason: {
+          type: "string",
+          description:
+            "Why the violation was reported. This is used to help the reviewer understand why the violation was reported.",
         },
         rule_id: {
           type: "string",

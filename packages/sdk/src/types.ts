@@ -51,6 +51,9 @@ export interface Violation {
   /** Whether the violation is optional */
   optional: boolean
 
+  /** Why the violation was reported originally */
+  reason: string
+
   /** Whether the violation was read from the cache */
   isCached?: boolean
 }

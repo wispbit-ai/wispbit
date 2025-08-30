@@ -62,6 +62,7 @@ Here is a list of all files that were added, removed or modified in this commit,
 ${filesChanged.map((file) => `<file>${file}</file>`).join("\n")}
 </files_changed_in_this_commit>
 
+IMPORTANT: You should minimize output tokens as much as possible while maintaining helpfulness, quality, and accuracy. If you can answer in 1-3 sentences or a short paragraph, please do.
 `
 }
 

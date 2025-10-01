@@ -15,11 +15,11 @@ import {
   ListDirResult,
   ReadFileParameters,
   ReadFileToolResult,
-} from "@wispbit/sdk/CodeReviewerExecutor"
-import { fileExists } from "@wispbit/sdk/fileExists"
-import { isCommandExecutable } from "@wispbit/sdk/isExecutable"
-import { isLineReferenceValidForPatch } from "@wispbit/sdk/patchParser"
-import { CodebaseRule } from "@wispbit/sdk/types"
+} from "@wispbit/sdk-ts/CodeReviewerExecutor"
+import { fileExists } from "@wispbit/sdk-ts/fileExists"
+import { isCommandExecutable } from "@wispbit/sdk-ts/isExecutable"
+import { isLineReferenceValidForPatch } from "@wispbit/sdk-ts/patchParser"
+import { CodebaseRule } from "@wispbit/sdk-ts/types"
 
 interface ExecError extends Error {
   code?: number

@@ -4,16 +4,16 @@ import pRetry from "p-retry"
 import pino from "pino"
 import { prettyFactory } from "pino-pretty"
 
-import { CLAUDE_4_SONNET } from "@wispbit/sdk/models"
-import { getOpenAICompletion, isToolResponseType } from "@wispbit/sdk/openai"
-import { addLineNumbersToPatch, extractDiffHunk, filterDiff } from "@wispbit/sdk/patchParser"
+import { CLAUDE_4_SONNET } from "@wispbit/sdk-ts/models"
+import { getOpenAICompletion, isToolResponseType } from "@wispbit/sdk-ts/openai"
+import { addLineNumbersToPatch, extractDiffHunk, filterDiff } from "@wispbit/sdk-ts/patchParser"
 import {
   Evidence,
   FileChange,
   PromptSuggestion,
   QuickSuggestion,
   Violation,
-} from "@wispbit/sdk/types"
+} from "@wispbit/sdk-ts/types"
 
 type CodeReviewerViolationValidatorOptions = {
   baseURL: string

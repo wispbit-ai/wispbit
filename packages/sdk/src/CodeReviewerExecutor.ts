@@ -1,7 +1,7 @@
 // Define the ChatCompletionTool type locally to avoid needing the OpenAI SDK
 
-import { complaint, grepSearch, listDir, readFile, globSearch } from "@wispbit/sdk/tools"
-import { CodebaseRule } from "@wispbit/sdk/types"
+import { complaint, grepSearch, listDir, readFile, globSearch } from "@wispbit/sdk-ts/tools"
+import { CodebaseRule } from "@wispbit/sdk-ts/types"
 
 // This matches the structure of the OpenAI type
 interface ChatCompletionTool {

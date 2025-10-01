@@ -7,17 +7,20 @@ import pRetry from "p-retry"
 import pino from "pino"
 import { prettyFactory } from "pino-pretty"
 
-import { filterRules } from "@wispbit/sdk/codebaseRules"
+import { filterRules } from "@wispbit/sdk-ts/codebaseRules"
 import {
   CodeReviewerExecutor,
   codeReviewTools,
   ComplaintParameters,
   ReadFileParameters,
-} from "@wispbit/sdk/CodeReviewerExecutor"
-import { CodeReviewerViolationValidator } from "@wispbit/sdk/CodeReviewerViolationValidator"
-import { getCodeReviewUserPrompt, getCodeReviewSystemPrompt } from "@wispbit/sdk/codeReviewPrompt"
-import { CLAUDE_4_SONNET } from "@wispbit/sdk/models"
-import { getOpenAICompletion, isToolResponseType } from "@wispbit/sdk/openai"
+} from "@wispbit/sdk-ts/CodeReviewerExecutor"
+import { CodeReviewerViolationValidator } from "@wispbit/sdk-ts/CodeReviewerViolationValidator"
+import {
+  getCodeReviewUserPrompt,
+  getCodeReviewSystemPrompt,
+} from "@wispbit/sdk-ts/codeReviewPrompt"
+import { CLAUDE_4_SONNET } from "@wispbit/sdk-ts/models"
+import { getOpenAICompletion, isToolResponseType } from "@wispbit/sdk-ts/openai"
 import {
   CodebaseRule,
   Evidence,
@@ -26,7 +29,7 @@ import {
   PromptSuggestion,
   QuickSuggestion,
   Violation,
-} from "@wispbit/sdk/types"
+} from "@wispbit/sdk-ts/types"
 
 import { readFileRange } from "./tools"
 

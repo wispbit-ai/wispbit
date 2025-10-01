@@ -3,8 +3,8 @@ import path from "path"
 import fs from "fs-extra"
 import { minimatch } from "minimatch"
 
-import { hashString } from "@wispbit/sdk/hash"
-import { CodebaseRule } from "@wispbit/sdk/types"
+import { hashString } from "@wispbit/sdk-ts/hash"
+import { CodebaseRule } from "@wispbit/sdk-ts/types"
 
 /**
  * Type definition for rule frontmatter metadata

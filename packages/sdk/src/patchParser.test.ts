@@ -3,8 +3,8 @@ import {
   isLineReferenceValidForPatch,
   addLineNumbersToPatch,
   filterDiff,
-} from "@wispbit/sdk/patchParser"
-import { LineReference } from "@wispbit/sdk/types"
+} from "@wispbit/sdk-ts/patchParser"
+import { LineReference } from "@wispbit/sdk-ts/types"
 
 describe("isLineReferenceValidForPatch", () => {
   const createLineReference = (

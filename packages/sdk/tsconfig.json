@@ -6,8 +6,8 @@
     "baseUrl": "./",
     "moduleResolution": "bundler",
     "paths": {
-      "@wispbit/sdk/*": ["src/*"],
-      "@wispbit/sdk": ["src"],
+      "@wispbit/sdk-ts/*": ["src/*"],
+      "@wispbit/sdk-ts": ["src"],
     },
   },
   "include": [

@@ -120,8 +120,8 @@ async function build() {
         // Don't bundle Node.js built-in modules
         ...nodeBuiltins,
         // Make internal SDK imports external so they resolve to subpath exports
-        "@wispbit/sdk/*",
-        "@wispbit/sdk",
+        "@wispbit/sdk-ts/*",
+        "@wispbit/sdk-ts",
       ],
       minify: false,
       sourcemap: true,

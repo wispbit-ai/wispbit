@@ -5,7 +5,7 @@ import path from "path"
 import fs from "fs-extra"
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 
-import { grepSearch, listDir, readFile, globSearch } from "@wispbit/sdk/tools"
+import { grepSearch, listDir, readFile, globSearch } from "@wispbit/sdk-ts/tools"
 
 const ripGrepPath = execSync("which rg").toString().trim()
 

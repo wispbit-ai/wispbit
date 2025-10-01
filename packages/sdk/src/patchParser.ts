@@ -2,7 +2,7 @@
  * Helper functions to parse git diff patches.
  */
 
-import { LineReference } from "@wispbit/sdk/types"
+import { LineReference } from "@wispbit/sdk-ts/types"
 
 /**
  * Represents a line in a git diff patch with line numbers and content.

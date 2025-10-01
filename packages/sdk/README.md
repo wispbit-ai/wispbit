@@ -1,4 +1,4 @@
-# @wispbit/sdk
+# @wispbit/sdk-ts
 
 The core SDK for wispbit's AI code review functionality. This package provides the underlying engine that powers the [@wispbit/cli](https://npmjs.com/package/@wispbit/cli) and allows you to integrate AI code review capabilities directly into your own applications and environments.
 
@@ -12,13 +12,13 @@ The SDK provides a complete AI-powered code review system that can:
 ## Installation
 
 ```bash
-npm install @wispbit/sdk
+npm install @wispbit/sdk-ts
 ```
 
 ## Quick Start
 
 ```typescript
-import { CodeReviewer, newRule } from '@wispbit/sdk'
+import { CodeReviewer, newRule } from '@wispbit/sdk-ts'
 
 // Create a code reviewer instance
 const reviewer = new CodeReviewer({
@@ -74,7 +74,7 @@ const reviewer = new CodeReviewer({
 ### Creating Rules
 
 ```typescript
-import { newRule, newRuleFromBlocks } from '@wispbit/sdk'
+import { newRule, newRuleFromBlocks } from '@wispbit/sdk-ts'
 
 // Simple rule
 const rule = newRule({
@@ -99,7 +99,7 @@ const markdownRule = newRuleFromBlocks([
 ### Loading Rules
 
 ```typescript
-import { getRulesFromDirectory, getRuleFromFile } from '@wispbit/sdk'
+import { getRulesFromDirectory, getRuleFromFile } from '@wispbit/sdk-ts'
 
 // Load all rules from a directory
 const rules = await getRulesFromDirectory('./rules')
@@ -141,7 +141,7 @@ import type {
   CodebaseRule, 
   Violation, 
   FileAnalysis 
-} from '@wispbit/sdk'
+} from '@wispbit/sdk-ts'
 
 const fileChange: FileChange = {
   filename: 'src/app.ts',

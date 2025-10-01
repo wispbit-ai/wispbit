@@ -4,7 +4,7 @@ import path from "path"
 import fs from "fs-extra"
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 
-import { matchesInclude, getRulesFromRoot, newRule } from "@wispbit/sdk/codebaseRules"
+import { matchesInclude, getRulesFromRoot, newRule } from "@wispbit/sdk-ts/codebaseRules"
 
 describe("Codebase Rules", () => {
   describe("newRule", () => {

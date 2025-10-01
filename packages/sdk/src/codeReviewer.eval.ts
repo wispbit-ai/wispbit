@@ -55,7 +55,7 @@ Eval("AI Code Review", {
 
     return {
       violations: result.violations.length,
-      optionalViolations: result.violations.filter((v) => v.optional).length,
+      optionalViolations: result.violations.filter((v) => v.violation.optional).length,
     }
   },
   scores: [ExactMatch],

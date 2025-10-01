@@ -163,21 +163,24 @@ export async function runCodeReview({
         onUpdateFile?.({
           fileName: file.filename,
           status: "completed",
-          violations: analysis.violations.length > 0 ? analysis.violations : undefined,
+          violations:
+            analysis.violations.length > 0
+              ? analysis.violations.map((v) => v.violation)
+              : undefined,
           rules: allowedRules,
         })
 
         await saveFileReview(
           repoRoot,
           file,
-          analysis.violations,
+          analysis.violations.map((v) => v.violation),
           analysis.visitedFiles,
           allowedRules
         )
 
         returnViolations.push({
           fileName: file.filename,
-          violations: analysis.violations,
+          violations: analysis.violations.map((v) => v.violation),
         })
 
         _completedCount++

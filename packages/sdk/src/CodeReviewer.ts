@@ -132,7 +132,11 @@ export class CodeReviewer {
         })
       },
       {
-        ...this.retryOptions,
+        retries: 10,
+        factor: 2,
+        minTimeout: 1000,
+        maxTimeout: 30000,
+        randomize: true, // Add jitter to prevent thundering herd
         onFailedAttempt: (error) => {
           this.logger.debug(
             {

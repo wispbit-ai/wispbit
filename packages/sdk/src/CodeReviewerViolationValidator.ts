@@ -101,7 +101,7 @@ export class CodeReviewerViolationValidator {
     const oldHunk = filterDiff(context, "deletions")
     const newHunk = filterDiff(context, "additions")
 
-    const validationPrompt = `You are a code review validator. Your job is to determine if this violation is actually a violation of the stated rule
+    const systemPrompt = `You are a code review validator. Your job is to determine if this violation is actually a violation of the stated rule.
 
 You will be given:
 1. A rule that was supposedly violated
@@ -113,39 +113,6 @@ You will be given:
     - Code lines are prefixed with symbols ('+', '-', ' '). The '+' symbol indicates new code added, the '-' symbol indicates code removed in the PR, and the ' ' symbol indicates unchanged code.
     - Line numbers are included to help you understand the context of the code change.
 5. The reason why the violation was reported by the original reviewer.
-
-<rule_description>
-${violation.rule.contents}
-</rule_description>
-
-<violation_description>
-${violation.description}
-</violation_description>
-
-<file_name>
-${fileChange.filename}
-</file_name>
-
-<file_status>
-${fileChange.status}
-</file_status>
-
-<old_lines>
-${addLineNumbersToPatch(oldHunk)}
-</old_lines>
-
-<new_lines>
-${addLineNumbersToPatch(newHunk)}
-</new_lines>
-
-<reason>
-${violation.reason}
-</reason>
-
-<other_file_evidence>
-${evidence.map((e) => `<file_path>${e.filePath}</file_path>\n<patch>${e.patch}</patch>`).join("\n")}
-</other_file_evidence>
-
 
 Use the following criteria to determine if the violation is valid:
 1. The rule description makes sense in the context of the code and violation description.
@@ -192,9 +159,39 @@ CRITICAL RULES for suggestions:
 - If the rule provides examples of correct implementation, use those patterns in your suggestion
 - IMPORTANT: NO INCOMPLETE CODE BLOCKS. THE CODE BLOCK MUST BE A COMPLETE REPLACEMENT WITH NO HANGING / LEADING BRACKETS THAT ARE NOT CLOSED.
 
+Use the report_validation tool to report your decision and reasoning.`
 
-Use the report_validation tool to report your decision and reasoning.
-`
+    const userPrompt = `<rule_description>
+${violation.rule.contents}
+</rule_description>
+
+<violation_description>
+${violation.description}
+</violation_description>
+
+<file_name>
+${fileChange.filename}
+</file_name>
+
+<file_status>
+${fileChange.status}
+</file_status>
+
+<old_lines>
+${addLineNumbersToPatch(oldHunk)}
+</old_lines>
+
+<new_lines>
+${addLineNumbersToPatch(newHunk)}
+</new_lines>
+
+<reason>
+${violation.reason}
+</reason>
+
+<other_file_evidence>
+${evidence.map((e) => `<file_path>${e.filePath}</file_path>\n<patch>${e.patch}</patch>`).join("\n")}
+</other_file_evidence>`
 
     const response = await this.callOpenAIWithRetry([
       {
@@ -202,11 +199,15 @@ Use the report_validation tool to report your decision and reasoning.
         content: [
           {
             type: "text" as const,
-            text: validationPrompt,
+            text: systemPrompt,
             // @ts-expect-error - cache_control is not a valid property of ChatCompletionContentPartText
             cache_control: { type: "ephemeral" },
           },
         ],
+      },
+      {
+        role: "user",
+        content: userPrompt,
       },
     ])
 

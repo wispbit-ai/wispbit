@@ -323,6 +323,7 @@ export const getOpenAICompletion = async function (
 
     // catch and re-throw errors because openrouter returns a different syntax
   } catch (error) {
+    console.error(error)
     const parsedError = parseAPIError(error)
     const statusText = parsedError.statusCode ? ` (HTTP ${parsedError.statusCode})` : ""
 

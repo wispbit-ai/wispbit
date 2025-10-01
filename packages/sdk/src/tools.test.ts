@@ -48,7 +48,9 @@ describe("Tools", () => {
       )
 
       if ("content" in result) {
-        expect(result.content).toBe("[Lines 1-1 omitted]\nLine 2\nLine 3\n[Lines 4-4 omitted]")
+        expect(result.content).toBe(
+          "[Lines 1-1 omitted]\nL2 Line 2\nL3 Line 3\n[Lines 4-4 omitted]"
+        )
       } else {
         throw new Error("Expected content in result")
       }
@@ -69,7 +71,7 @@ describe("Tools", () => {
       )
 
       if ("content" in result) {
-        expect(result.content).toBe("Line 1\n[Lines 2-4 omitted]")
+        expect(result.content).toBe("L1 Line 1\n[Lines 2-4 omitted]")
       } else {
         throw new Error("Expected content in result")
       }

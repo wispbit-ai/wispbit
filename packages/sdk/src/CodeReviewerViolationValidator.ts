@@ -217,9 +217,10 @@ ${evidence.map((e) => `<file_path>${e.filePath}</file_path>\n<patch>${e.patch}</
 
     const toolCall = response.toolCalls[0]
     const validationResult = JSON.parse(toolCall.function.arguments)
+    this.logger.debug({ validationResult }, "Validation result")
     const isValid = validationResult.valid
     const quickSuggestion = validationResult?.quickSuggestion ?? undefined
-    const promptSuggestion = validationResult?.promptSuggestion || []
+    const promptSuggestion = validationResult?.promptSuggestion ?? []
 
     // Validate quick suggestion if provided
     const validQuickSuggestion =

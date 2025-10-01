@@ -35,6 +35,13 @@ export interface ComplaintParameters {
   optional: boolean
   /** Why the violation was reported */
   reason: string
+
+  evidence: {
+    file_path: string
+    line_start: number
+    line_end: number
+    description: string
+  }[]
 }
 
 /**
@@ -420,6 +427,33 @@ const complaintTool: ChatCompletionTool = {
           type: "boolean",
           description: "Whether the violation is optional.",
         },
+        // evidence: {
+        //   type: "array",
+        //   description:
+        //     "If the violation required checking other files, provide the evidence for each file that you checked and the relevant lines that support the violation. DO NOT include evidence if it's already in the violation file itself.",
+        //   items: {
+        //     type: "object",
+        //     properties: {
+        //       file_path: {
+        //         type: "string",
+        //         description: "Path to the file containing the evidence",
+        //       },
+        //       line_start: {
+        //         type: "string",
+        //         description: "Line number range where the violation occurs",
+        //       },
+        //       line_end: {
+        //         type: "string",
+        //         description: "Line number range where the violation occurs",
+        //       },
+        //       description: {
+        //         type: "string",
+        //         description:
+        //           "Description of why this evidence supports the violation, formatted in markdown with proper formatting for code snippets where needed.",
+        //       },
+        //     },
+        //   },
+        // },
       },
       required: ["file_path", "line_start", "line_end", "line_side", "description", "rule_id"],
     },

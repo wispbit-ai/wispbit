@@ -18,7 +18,17 @@ import { CodeReviewerViolationValidator } from "@wispbit/sdk/CodeReviewerViolati
 import { getCodeReviewUserPrompt, getCodeReviewSystemPrompt } from "@wispbit/sdk/codeReviewPrompt"
 import { CLAUDE_4_SONNET } from "@wispbit/sdk/models"
 import { getOpenAICompletion, isToolResponseType } from "@wispbit/sdk/openai"
-import { CodebaseRule, FileAnalysis, FileChange, Violation } from "@wispbit/sdk/types"
+import {
+  CodebaseRule,
+  Evidence,
+  FileAnalysis,
+  FileChange,
+  PromptSuggestion,
+  QuickSuggestion,
+  Violation,
+} from "@wispbit/sdk/types"
+
+import { readFileRange } from "./tools"
 
 const prettify = prettyFactory({ sync: true })
 
@@ -204,7 +214,13 @@ export class CodeReviewer {
     ].filter(Boolean) as ChatCompletionMessageParam[]
 
     // Initialize an empty array to collect violations
-    const violations: Violation[] = []
+    const violations: {
+      violation: Violation
+      evidence: Evidence[]
+      quickSuggestion: QuickSuggestion | undefined
+      promptSuggestion: PromptSuggestion[]
+      suggestionToUse: "quickSuggestion" | "promptSuggestion" | "none" | undefined
+    }[] = []
     const rejectedViolations: Array<{ violation: Violation; reasoning: string }> = []
     let visitedFiles: string[] = []
     let totalCost = new Big(0)
@@ -267,7 +283,8 @@ export class CodeReviewer {
       const toolCallResults = await Promise.all(toolCallPromises)
 
       // Process results in order and add to messages
-      const violationsToValidate: { violation: Violation; reason: string }[] = []
+      const violationsToValidate: { violation: Violation; reason: string; evidence: Evidence[] }[] =
+        []
 
       for (const { toolCall, toolResult, args } of toolCallResults) {
         // Add the tool result to the conversation
@@ -298,7 +315,26 @@ export class CodeReviewer {
             reason: complaintParams.reason,
           }
 
-          violationsToValidate.push({ violation, reason: complaintParams.reason })
+          const evidence = await Promise.all(
+            (complaintParams?.evidence ?? []).map(async (e) => {
+              const readRange = await Promise.resolve(
+                readFileRange(e.file_path, e.line_start, e.line_end)
+              )
+
+              return {
+                filePath: e.file_path,
+                line: {
+                  start: e.line_start,
+                  end: e.line_end,
+                  side: "left" as const,
+                },
+                description: e.description,
+                patch: readRange,
+              }
+            })
+          )
+
+          violationsToValidate.push({ violation, reason: complaintParams.reason, evidence })
         }
       }
 
@@ -320,8 +356,11 @@ export class CodeReviewer {
 
           if (validationResult.isValid) {
             violations.push({
-              ...violation.violation,
-              validationReasoning: validationResult.reasoning,
+              violation: violation.violation,
+              evidence: violation.evidence,
+              quickSuggestion: validationResult.quickSuggestion,
+              promptSuggestion: validationResult.promptSuggestion || [],
+              suggestionToUse: validationResult.suggestionToUse || "none",
             })
           } else {
             rejectedViolations.push({
@@ -344,7 +383,13 @@ export class CodeReviewer {
     visitedFiles = visitedFiles.toSorted()
 
     return {
-      violations,
+      violations: violations.map((v) => ({
+        violation: v.violation,
+        evidence: v.evidence,
+        quickSuggestion: v.quickSuggestion,
+        promptSuggestion: v.promptSuggestion,
+        suggestionToUse: v.suggestionToUse,
+      })),
       explanation: content,
       visitedFiles,
       rejectedViolations,

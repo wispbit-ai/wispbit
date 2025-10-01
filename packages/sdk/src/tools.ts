@@ -79,20 +79,24 @@ export function readFileRange(filePath: string, startLine: number, endLine: numb
     const start = Math.max(0, startLine - 1)
     const end = Math.min(lines.length, endLine)
 
-    const selectedLines = lines.slice(start, end)
-
-    if (start === 0 && end === lines.length) {
-      return content
+    // If the requested range covers the entire file, return with line numbers
+    if (start === 0 && end >= lines.length) {
+      return lines.map((line, index) => `L${index + 1} ${line}`).join("\n")
     }
 
+    const selectedLines = lines.slice(start, end)
     let result = ""
 
+    // Add omission indicator for lines before the selection
     if (start > 0) {
       result += `[Lines 1-${start} omitted]\n`
     }
 
-    result += selectedLines.join("\n")
+    // Add selected lines with line numbers
+    const numberedLines = selectedLines.map((line, index) => `L${start + index + 1} ${line}`)
+    result += numberedLines.join("\n")
 
+    // Add omission indicator for lines after the selection
     if (end < lines.length) {
       result += `\n[Lines ${end + 1}-${lines.length} omitted]`
     }

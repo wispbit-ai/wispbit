@@ -59,11 +59,57 @@ export interface Violation {
 }
 
 /**
+ * Represents evidence from other files to support violation validation.
+ */
+export interface Evidence {
+  filePath: string
+  line: LineReference
+  patch?: string
+  description: string
+}
+
+/**
+ * Represents a quick suggestion to fix a violation.
+ */
+export interface QuickSuggestion {
+  /** Starting line number for the suggestion */
+  lineStart: number
+  /** Ending line number for the suggestion */
+  lineEnd: number
+  /** Which side of the diff the suggestion applies to */
+  side: "right" | "left"
+  /** The suggested code block that would fix the violation */
+  codeBlock: string
+  /** The file name where the suggestion applies */
+  fileName: string
+}
+
+/**
+ * Represents a prompt suggestion for fixing a violation.
+ */
+export interface PromptSuggestion {
+  /** The file name where the fix should be applied */
+  fileName: string
+  /** Starting line number for the fix */
+  lineStart: number
+  /** Ending line number for the fix */
+  lineEnd: number
+  /** Clear instructions for an AI to fix this violation */
+  instructions: string
+}
+
+/**
  * Represents the analysis of a file.
  */
 export interface FileAnalysis {
   /** List of violations found */
-  violations: Violation[]
+  violations: {
+    violation: Violation
+    evidence: Evidence[]
+    quickSuggestion?: QuickSuggestion
+    promptSuggestion?: PromptSuggestion[]
+    suggestionToUse?: "quickSuggestion" | "promptSuggestion" | "none"
+  }[]
   /** Explanation of the analysis */
   explanation: string
   /** List of rules used to analyze the file */

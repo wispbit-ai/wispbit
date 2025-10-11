@@ -47,4 +47,4 @@ Find examples of free and high quality rules on the [wispbit rules page](https:/
 - Opinionated and simple. No summaries. No poems. Just violations with actionable feedback. The goal is to get out of your way.
 
 ### Community
-[Join the slack community!]([https://wispbit.com/discord](https://join.slack.com/t/wispbitcommunity/shared_invite/zt-3fimtjmcm-OJTQPpcze68dRpjrGRqvDA))
+[Join the slack community!](https://join.slack.com/t/wispbitcommunity/shared_invite/zt-3fimtjmcm-OJTQPpcze68dRpjrGRqvDA)
